@@ -14,10 +14,10 @@
 
 package pl.net.was;
 
-import io.airlift.bootstrap.LifeCycleManager;
 import io.trino.spi.connector.Connector;
 import io.trino.spi.connector.ConnectorMetadata;
 import io.trino.spi.connector.ConnectorRecordSetProvider;
+import io.trino.spi.connector.ConnectorSession;
 import io.trino.spi.connector.ConnectorSplitManager;
 import io.trino.spi.connector.ConnectorTransactionHandle;
 import io.trino.spi.transaction.IsolationLevel;
@@ -30,32 +30,29 @@ import static pl.net.was.FakerTransactionHandle.INSTANCE;
 public class FakerConnector
         implements Connector
 {
-    private final LifeCycleManager lifeCycleManager;
     private final FakerMetadata metadata;
     private final FakerSplitManager splitManager;
     private final FakerRecordSetProvider recordSetProvider;
 
     @Inject
     public FakerConnector(
-            LifeCycleManager lifeCycleManager,
             FakerMetadata metadata,
             FakerSplitManager splitManager,
             FakerRecordSetProvider recordSetProvider)
     {
-        this.lifeCycleManager = requireNonNull(lifeCycleManager, "lifeCycleManager is null");
         this.metadata = requireNonNull(metadata, "metadata is null");
         this.splitManager = requireNonNull(splitManager, "splitManager is null");
         this.recordSetProvider = requireNonNull(recordSetProvider, "recordSetProvider is null");
     }
 
     @Override
-    public ConnectorTransactionHandle beginTransaction(IsolationLevel isolationLevel, boolean readOnly)
+    public ConnectorTransactionHandle beginTransaction(IsolationLevel isolationLevel, boolean readOnly, boolean autoCommit)
     {
         return INSTANCE;
     }
 
     @Override
-    public ConnectorMetadata getMetadata(ConnectorTransactionHandle transaction)
+    public ConnectorMetadata getMetadata(ConnectorSession session, ConnectorTransactionHandle transaction)
     {
         return metadata;
     }
@@ -70,11 +67,5 @@ public class FakerConnector
     public ConnectorRecordSetProvider getRecordSetProvider()
     {
         return recordSetProvider;
-    }
-
-    @Override
-    public final void shutdown()
-    {
-        lifeCycleManager.stop();
     }
 }

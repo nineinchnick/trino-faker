@@ -16,28 +16,23 @@ package pl.net.was;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import io.airlift.slice.Slice;
 import io.trino.spi.connector.ColumnHandle;
 import io.trino.spi.connector.ColumnMetadata;
-import io.trino.spi.connector.ConnectorInsertTableHandle;
 import io.trino.spi.connector.ConnectorMetadata;
-import io.trino.spi.connector.ConnectorOutputMetadata;
 import io.trino.spi.connector.ConnectorSession;
 import io.trino.spi.connector.ConnectorTableHandle;
 import io.trino.spi.connector.ConnectorTableMetadata;
 import io.trino.spi.connector.ConnectorTableProperties;
 import io.trino.spi.connector.SchemaTableName;
 import io.trino.spi.connector.SchemaTablePrefix;
-import io.trino.spi.predicate.TupleDomain;
-import io.trino.spi.statistics.ComputedStatistics;
+import io.trino.spi.connector.TableColumnsMetadata;
 
 import javax.inject.Inject;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static io.trino.spi.type.VarcharType.VARCHAR;
 import static java.util.stream.Collectors.toList;
@@ -72,13 +67,7 @@ public class FakerMetadata
         if (!schemaTableName.getSchemaName().equals(SCHEMA_NAME)) {
             return null;
         }
-        return new FakerTableHandle(
-                schemaTableName,
-                TupleDomain.none(),
-                0,
-                Integer.MAX_VALUE,
-                1,
-                null);
+        return new FakerTableHandle(schemaTableName);
     }
 
     @Override
@@ -129,31 +118,11 @@ public class FakerMetadata
     }
 
     @Override
-    public Map<SchemaTableName, List<ColumnMetadata>> listTableColumns(
-            ConnectorSession connectorSession,
-            SchemaTablePrefix schemaTablePrefix)
+    public Stream<TableColumnsMetadata> streamTableColumns(ConnectorSession session, SchemaTablePrefix prefix)
     {
-        return columns.entrySet()
-                .stream()
-                .collect(Collectors.toMap(
-                        e -> new SchemaTableName(schemaTablePrefix.getSchema().orElse(""), e.getKey()),
-                        Map.Entry::getValue));
-    }
-
-    @Override
-    public ConnectorInsertTableHandle beginInsert(ConnectorSession session, ConnectorTableHandle connectorTableHandle)
-    {
-        FakerTableHandle tableHandle = Types.checkType(connectorTableHandle, FakerTableHandle.class, "tableHandle");
-        return new FakerInsertTableHandle(tableHandle);
-    }
-
-    @Override
-    public Optional<ConnectorOutputMetadata> finishInsert(
-            ConnectorSession session,
-            ConnectorInsertTableHandle insertHandle,
-            Collection<Slice> fragments,
-            Collection<ComputedStatistics> computedStatistics)
-    {
-        return Optional.empty();
+        return columns.entrySet().stream()
+                .map(entry -> TableColumnsMetadata.forTable(
+                        new SchemaTableName(prefix.getSchema().orElse(""), entry.getKey()),
+                        entry.getValue()));
     }
 }
