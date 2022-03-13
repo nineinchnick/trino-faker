@@ -24,16 +24,25 @@ import java.util.Objects;
 public class FakerColumnHandle
         implements ColumnHandle
 {
+    private final int columnIndex;
     private final String name;
     private final Type type;
 
     @JsonCreator
     public FakerColumnHandle(
+            @JsonProperty("columnIndex") int columnIndex,
             @JsonProperty("name") String name,
             @JsonProperty("type") Type type)
     {
+        this.columnIndex = columnIndex;
         this.name = name;
         this.type = type;
+    }
+
+    @JsonProperty
+    public int getColumnIndex()
+    {
+        return columnIndex;
     }
 
     @JsonProperty("name")
@@ -49,6 +58,12 @@ public class FakerColumnHandle
     }
 
     @Override
+    public int hashCode()
+    {
+        return Objects.hash(columnIndex);
+    }
+
+    @Override
     public boolean equals(Object o)
     {
         if (this == o) {
@@ -58,12 +73,12 @@ public class FakerColumnHandle
             return false;
         }
         FakerColumnHandle that = (FakerColumnHandle) o;
-        return Objects.equals(name, that.name);
+        return Objects.equals(columnIndex, that.columnIndex);
     }
 
     @Override
-    public int hashCode()
+    public String toString()
     {
-        return Objects.hash(name);
+        return name + ":" + type;
     }
 }

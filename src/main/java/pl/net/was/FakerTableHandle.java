@@ -19,26 +19,57 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import io.trino.spi.connector.ConnectorTableHandle;
 import io.trino.spi.connector.SchemaTableName;
 
+import java.util.Objects;
+
 public class FakerTableHandle
         implements ConnectorTableHandle
 {
+    private final long id;
     private final SchemaTableName schemaTableName;
 
     @JsonCreator
     public FakerTableHandle(
+            @JsonProperty("id") long id,
             @JsonProperty("schemaTableName") SchemaTableName schemaTableName)
     {
+        this.id = id;
         this.schemaTableName = schemaTableName;
     }
 
-    public String toString()
+    @JsonProperty
+    public long getId()
     {
-        return schemaTableName.getTableName();
+        return id;
     }
 
     @JsonProperty("schemaTableName")
     public SchemaTableName getSchemaTableName()
     {
         return schemaTableName;
+    }
+
+    @Override
+    public boolean equals(Object o)
+    {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        FakerTableHandle that = (FakerTableHandle) o;
+        return id == that.id &&
+                schemaTableName.equals(that.schemaTableName);
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return Objects.hash(id, schemaTableName);
+    }
+
+    public String toString()
+    {
+        return schemaTableName.getTableName();
     }
 }

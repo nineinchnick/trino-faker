@@ -52,11 +52,11 @@
         <air.check.fail-checkstyle>true</air.check.fail-checkstyle>
         <air.check.skip-checkstyle>false</air.check.skip-checkstyle>
 
-        <dep.trino.version>372</dep.trino.version>
+        <dep.trino.version>374</dep.trino.version>
         <dep.airlift.version>214</dep.airlift.version>
         <dep.packaging.version>\${dep.airlift.version}</dep.packaging.version>
         <dep.errorprone.version>2.11.0</dep.errorprone.version>
-        <dep.jackson.version>2.13.1</dep.jackson.version>
+        <dep.jackson.version>2.13.2</dep.jackson.version>
         <dep.testng.version>7.5</dep.testng.version>
 
         <air.javadoc.lint>-missing</air.javadoc.lint>
@@ -210,6 +210,13 @@
             <groupId>org.assertj</groupId>
             <artifactId>assertj-core</artifactId>
             <version>3.22.0</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jetbrains</groupId>
+            <artifactId>annotations</artifactId>
+            <version>19.0.0</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

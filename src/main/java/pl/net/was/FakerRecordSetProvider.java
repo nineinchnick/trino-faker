@@ -14,6 +14,7 @@
 
 package pl.net.was;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import io.trino.spi.connector.ColumnHandle;
 import io.trino.spi.connector.ColumnMetadata;
@@ -30,7 +31,11 @@ import io.trino.spi.type.Type;
 import javax.inject.Inject;
 
 import java.util.List;
+import java.util.stream.Stream;
 
+import static io.trino.spi.type.BigintType.BIGINT;
+import static io.trino.spi.type.IntegerType.INTEGER;
+import static io.trino.spi.type.VarcharType.VARCHAR;
 import static java.util.stream.Collectors.toList;
 
 public class FakerRecordSetProvider
@@ -52,42 +57,41 @@ public class FakerRecordSetProvider
             ConnectorSession connectorSession,
             ConnectorSplit connectorSplit,
             ConnectorTableHandle table,
-            List<? extends ColumnHandle> list)
+            List<? extends ColumnHandle> columns)
     {
-        // TODO implement
-        Iterable<List<?>> rows = List.of(
-                List.of("x", config.getSomeSetting(), "my-name"));
-
-        List<FakerColumnHandle> restColumnHandles = list
+        List<FakerColumnHandle> handles = columns
                 .stream()
                 .map(c -> (FakerColumnHandle) c)
                 .collect(toList());
-        ConnectorTableMetadata tableMetadata = metadata.getTableMetadata(connectorSession, table);
 
-        List<Integer> columnIndexes = restColumnHandles
-                .stream()
-                .map(column -> {
-                    int index = 0;
-                    for (ColumnMetadata columnMetadata : tableMetadata.getColumns()) {
-                        if (columnMetadata.getName().equalsIgnoreCase(column.getName())) {
-                            return index;
-                        }
-                        index++;
-                    }
-                    throw new IllegalStateException("Unknown column: " + column.getName());
-                })
-                .collect(toList());
+        Stream<List<Object>> stream = Stream.generate(() -> generateRow(handles)).limit(1000L);
+        Iterable<List<Object>> rows = stream::iterator;
 
-        //noinspection StaticPseudoFunctionalStyleMethod
-        Iterable<List<?>> mappedRows = Iterables.transform(rows, row -> columnIndexes
-                .stream()
-                .map(row::get)
-                .collect(toList()));
-
-        List<Type> mappedTypes = restColumnHandles
+        List<Type> mappedTypes = handles
                 .stream()
                 .map(FakerColumnHandle::getType)
                 .collect(toList());
-        return new InMemoryRecordSet(mappedTypes, mappedRows);
+        return new InMemoryRecordSet(mappedTypes, rows);
+    }
+
+    private List<Object> generateRow(List<FakerColumnHandle> handles)
+    {
+        ImmutableList.Builder<Object> values = ImmutableList.builder();
+        handles.forEach(handle -> {
+                    values.add(generateValue(handle));
+                });
+        return values.build();
+    }
+
+    private Object generateValue(FakerColumnHandle handle)
+    {
+        Type type = handle.getType();
+        if (VARCHAR.equals(type)) {
+            return "string";
+        }
+        if (BIGINT.equals(type) || INTEGER.equals(type)) {
+            return 1L;
+        }
+        throw new IllegalArgumentException("Unsupported type " + type);
     }
 }

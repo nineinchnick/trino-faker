@@ -58,10 +58,10 @@ docker run \
   -p 8080:8080 \
   --name trino \
   -d \
-  trinodb/trino:372
+  trinodb/trino:374
 ```
 
 Connect to that server using:
 ```bash
-docker run -it --rm --link trino trinodb/trino:372 trino --server trino:8080 --catalog faker --schema default
+docker run -it --rm --link trino trinodb/trino:374 trino --server trino:8080 --catalog faker --schema default
 ```

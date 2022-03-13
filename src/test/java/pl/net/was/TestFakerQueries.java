@@ -32,13 +32,16 @@ public class TestFakerQueries
     public void showTables()
     {
         assertQuery("SHOW SCHEMAS FROM faker", "VALUES 'default', 'information_schema'");
-        assertQuery("SHOW TABLES FROM faker.default", "VALUES 'single_row'");
+        assertUpdate("CREATE TABLE faker.default.test (id INTEGER, name VARCHAR)");
+        assertTableColumnNames("faker.default.test", "id", "name");
     }
 
     @Test
     public void selectFromTable()
     {
-        assertQuery("SELECT name FROM single_row WHERE id = 'x'",
-                "VALUES ('my-name')");
+        assertUpdate("CREATE TABLE faker.default.names (id INTEGER, name VARCHAR)");
+        assertQuery("SELECT count(distinct id) AS ids, count(distinct name) as names FROM names",
+                "VALUES (1, 1)");
+        assertUpdate("DROP TABLE faker.default.names");
     }
 }
