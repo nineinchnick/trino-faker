@@ -151,13 +151,13 @@ public class FakerRecordSetProvider
             return faker.number().numberBetween(Long.MIN_VALUE, Long.MAX_VALUE);
         }
         if (type instanceof VarbinaryType) {
-            return faker.lorem().sentence().getBytes();
+            return faker.lorem().sentence(20).getBytes();
         }
         if (type instanceof VarcharType) {
             VarcharType varcharType = (VarcharType) type;
             return varcharType.getLength()
                     .map(length -> faker.lorem().maxLengthSentence(length))
-                    .orElse(faker.lorem().sentence());
+                    .orElse(faker.lorem().sentence(20));
         }
         if (type instanceof CharType) {
             CharType charType = (CharType) type;
