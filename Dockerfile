@@ -6,5 +6,5 @@ RUN rm -rf /usr/lib/trino/plugin/{accumulo,atop,bigquery,blackhole,cassandra,cli
     rm -rf /etc/trino/catalog/{tpcds,tpch}.properties \
     && ls -la /usr/lib/trino/plugin
 
-ADD target/$artifactId-\$VERSION/ /usr/lib/trino/plugin/faker/
-ADD catalog/$connectorName.properties /etc/trino/catalog/$connectorName.properties
+ADD target/trino-faker-$VERSION/ /usr/lib/trino/plugin/faker/
+ADD catalog/faker.properties /etc/trino/catalog/faker.properties

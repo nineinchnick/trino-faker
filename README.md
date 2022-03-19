@@ -3,7 +3,9 @@ Trino Connector
 
 [![Build Status](https://github.com/nineinchnick/trino-faker/actions/workflows/release.yaml/badge.svg)](https://github.com/nineinchnick/trino-faker/actions/workflows/release.yaml)
 
-This is a [Trino](http://trino.io/) connector.
+This is a [Trino](http://trino.io/) connector that generates random data. It has two goals:
+1. Be easy to use.
+2. Support ass Trino's data types.
 
 # Quick Start
 
