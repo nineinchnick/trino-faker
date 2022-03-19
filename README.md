@@ -5,7 +5,7 @@ Trino Connector
 
 This is a [Trino](http://trino.io/) connector that generates random data. It has two goals:
 1. Be easy to use.
-2. Support ass Trino's data types.
+2. Support all Trino's data types.
 3. Generate random data that looks as real as possible and is correct, that is it matches all the constraints.
 
 # Quick Start
