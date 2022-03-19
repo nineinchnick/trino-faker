@@ -16,6 +16,7 @@ package pl.net.was;
 
 import io.trino.testing.AbstractTestQueryFramework;
 import io.trino.testing.QueryRunner;
+import org.intellij.lang.annotations.Language;
 import org.testng.annotations.Test;
 
 public class TestFakerQueries
@@ -39,9 +40,81 @@ public class TestFakerQueries
     @Test
     public void selectFromTable()
     {
-        assertUpdate("CREATE TABLE faker.default.names (id INTEGER, name VARCHAR)");
-        assertQuery("SELECT count(distinct id) AS ids, count(distinct name) as names FROM names",
-                "VALUES (1, 1)");
-        assertUpdate("DROP TABLE faker.default.names");
+        @Language("SQL")
+        String tableQuery = "CREATE TABLE faker.default.all_types (" +
+                "rnd_bigint bigint NOT NULL, " +
+                "rnd_integer integer NOT NULL, " +
+                "rnd_smallint smallint NOT NULL, " +
+                "rnd_tinyint tinyint NOT NULL, " +
+                "rnd_boolean boolean NOT NULL, " +
+                "rnd_date date NOT NULL, " +
+                "rnd_decimal decimal NOT NULL, " +
+                "rnd_real real NOT NULL, " +
+                "rnd_double double NOT NULL, " +
+                "rnd_interval_day_time interval day to second NOT NULL, " +
+                "rnd_interval_year interval year to month NOT NULL, " +
+                "rnd_timestamp timestamp NOT NULL, " +
+                "rnd_timestamptz timestamp with time zone NOT NULL, " +
+                "rnd_time time NOT NULL, " +
+                "rnd_timetz time with time zone NOT NULL, " +
+                "rnd_varbinary varbinary NOT NULL, " +
+                "rnd_varchar varchar NOT NULL, " +
+                "rnd_char char NOT NULL, " +
+                "rnd_ipaddress ipaddress NOT NULL, " +
+                "rnd_uuid uuid NOT NULL" +
+                ")";
+        assertUpdate(tableQuery);
+
+        @Language("SQL")
+        String testQuery = "SELECT " +
+                "count(distinct rnd_bigint), " +
+                "count(distinct rnd_integer), " +
+                "count(rnd_smallint), " +
+                "count(rnd_tinyint), " +
+                "count(distinct rnd_boolean), " +
+                "count(distinct rnd_date), " +
+                "count(distinct rnd_decimal), " +
+                "count(distinct rnd_real), " +
+                "count(distinct rnd_double), " +
+                "count(distinct rnd_interval_day_time), " +
+                "count(distinct rnd_interval_year), " +
+                "count(distinct rnd_timestamp), " +
+                "count(distinct rnd_timestamptz), " +
+                "count(distinct rnd_time), " +
+                "count(distinct rnd_timetz), " +
+                "count(distinct rnd_varbinary), " +
+                "count(distinct rnd_varchar), " +
+                "count(distinct rnd_char), " +
+                "count(distinct rnd_ipaddress), " +
+                "count(distinct rnd_uuid) " +
+                "FROM all_types";
+        assertQuery(testQuery,
+                "VALUES (1000," +
+                        "1000," +
+                        "1000," +
+                        "1000," +
+                        "2," +
+                        "1000," +
+                        "1000," +
+                        // real, double
+                        "1000," +
+                        "1000," +
+                        // intervals
+                        "1000," +
+                        "1000," +
+                        // timestamps
+                        "1000," +
+                        "1000," +
+                        // time
+                        "1000," +
+                        "1000," +
+                        // varbinary, varchar, char
+                        "1000," +
+                        "1000," +
+                        "19," +
+                        // ip address, uuid
+                        "1000," +
+                        "1000)");
+        assertUpdate("DROP TABLE faker.default.all_types");
     }
 }

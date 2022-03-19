@@ -27,19 +27,22 @@ public class FakerColumnHandle
     private final int columnIndex;
     private final String name;
     private final Type type;
+    private final boolean isNullable;
 
     @JsonCreator
     public FakerColumnHandle(
             @JsonProperty("columnIndex") int columnIndex,
             @JsonProperty("name") String name,
-            @JsonProperty("type") Type type)
+            @JsonProperty("type") Type type,
+            @JsonProperty("isNullable") boolean isNullable)
     {
         this.columnIndex = columnIndex;
         this.name = name;
         this.type = type;
+        this.isNullable = isNullable;
     }
 
-    @JsonProperty
+    @JsonProperty("columnIndex")
     public int getColumnIndex()
     {
         return columnIndex;
@@ -55,6 +58,12 @@ public class FakerColumnHandle
     public Type getType()
     {
         return type;
+    }
+
+    @JsonProperty("isNullable")
+    public boolean getIsNullable()
+    {
+        return isNullable;
     }
 
     @Override

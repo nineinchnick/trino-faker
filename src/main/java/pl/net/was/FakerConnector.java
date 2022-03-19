@@ -15,6 +15,7 @@
 package pl.net.was;
 
 import io.trino.spi.connector.Connector;
+import io.trino.spi.connector.ConnectorCapabilities;
 import io.trino.spi.connector.ConnectorMetadata;
 import io.trino.spi.connector.ConnectorRecordSetProvider;
 import io.trino.spi.connector.ConnectorSession;
@@ -24,6 +25,9 @@ import io.trino.spi.transaction.IsolationLevel;
 
 import javax.inject.Inject;
 
+import java.util.Set;
+
+import static io.trino.spi.connector.ConnectorCapabilities.NOT_NULL_COLUMN_CONSTRAINT;
 import static java.util.Objects.requireNonNull;
 import static pl.net.was.FakerTransactionHandle.INSTANCE;
 
@@ -67,5 +71,11 @@ public class FakerConnector
     public ConnectorRecordSetProvider getRecordSetProvider()
     {
         return recordSetProvider;
+    }
+
+    @Override
+    public Set<ConnectorCapabilities> getCapabilities()
+    {
+        return Set.of(NOT_NULL_COLUMN_CONSTRAINT);
     }
 }

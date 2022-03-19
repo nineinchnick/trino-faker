@@ -15,7 +15,6 @@
 package pl.net.was;
 
 import io.airlift.configuration.Config;
-import io.airlift.configuration.ConfigSecuritySensitive;
 
 public class FakerConfig
 {

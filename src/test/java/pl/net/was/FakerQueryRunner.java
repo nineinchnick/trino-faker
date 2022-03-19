@@ -14,7 +14,6 @@
 
 package pl.net.was;
 
-import com.google.common.collect.ImmutableMap;
 import io.airlift.log.Level;
 import io.airlift.log.Logger;
 import io.airlift.log.Logging;

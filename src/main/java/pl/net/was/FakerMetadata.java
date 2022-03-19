@@ -203,7 +203,7 @@ public class FakerMetadata
         for (int i = 0; i < tableMetadata.getColumns().size(); i++) {
             ColumnMetadata column = tableMetadata.getColumns().get(i);
             columns.add(new ColumnInfo(
-                    new FakerColumnHandle(i, column.getName(), column.getType()),
+                    new FakerColumnHandle(i, column.getName(), column.getType(), column.isNullable()),
                     column.getName(),
                     column.getType()));
         }
