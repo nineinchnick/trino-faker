@@ -74,7 +74,7 @@ public class TestFakerQueries
                 "count(distinct rnd_boolean), " +
                 "count(distinct rnd_date), " +
                 "count(distinct rnd_decimal), " +
-                "count(distinct rnd_real), " +
+                "count(rnd_real), " +
                 "count(distinct rnd_double), " +
                 "count(distinct rnd_interval_day_time), " +
                 "count(distinct rnd_interval_year), " +
