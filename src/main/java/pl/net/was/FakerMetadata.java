@@ -28,6 +28,7 @@ import io.trino.spi.connector.ConnectorTableHandle;
 import io.trino.spi.connector.ConnectorTableLayout;
 import io.trino.spi.connector.ConnectorTableMetadata;
 import io.trino.spi.connector.ConnectorTableProperties;
+import io.trino.spi.connector.LimitApplicationResult;
 import io.trino.spi.connector.RetryMode;
 import io.trino.spi.connector.SchemaNotFoundException;
 import io.trino.spi.connector.SchemaTableName;
@@ -63,14 +64,17 @@ public class FakerMetadata
     public static final String SCHEMA_NAME = "default";
 
     private final List<String> schemas = new ArrayList<>();
+    private final FakerConfig config;
+
     private final AtomicLong nextTableId = new AtomicLong();
     private final Map<SchemaTableName, Long> tableIds = new HashMap<>();
     private final Map<Long, TableInfo> tables = new HashMap<>();
 
     @Inject
-    public FakerMetadata()
+    public FakerMetadata(FakerConfig config)
     {
         this.schemas.add(SCHEMA_NAME);
+        this.config = config;
     }
 
     @Override
@@ -105,7 +109,7 @@ public class FakerMetadata
         if (id == null) {
             return null;
         }
-        return new FakerTableHandle(id, schemaTableName);
+        return new FakerTableHandle(id, schemaTableName, config.getDefaultLimit());
     }
 
     @Override
@@ -257,5 +261,21 @@ public class FakerMetadata
     public ConnectorTableProperties getTableProperties(ConnectorSession session, ConnectorTableHandle table)
     {
         return new ConnectorTableProperties();
+    }
+
+    @Override
+    public Optional<LimitApplicationResult<ConnectorTableHandle>> applyLimit(
+            ConnectorSession session,
+            ConnectorTableHandle table,
+            long limit)
+    {
+        FakerTableHandle fakerTable = (FakerTableHandle) table;
+        if (fakerTable.getLimit() == limit) {
+            return Optional.empty();
+        }
+        return Optional.of(new LimitApplicationResult<>(
+                fakerTable.cloneWithLimit(limit),
+                false,
+                true));
     }
 }

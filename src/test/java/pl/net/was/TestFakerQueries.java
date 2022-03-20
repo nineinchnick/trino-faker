@@ -117,4 +117,20 @@ public class TestFakerQueries
                         "1000)");
         assertUpdate("DROP TABLE faker.default.all_types");
     }
+
+    @Test
+    public void selectLimit()
+    {
+        @Language("SQL")
+        String tableQuery = "CREATE TABLE faker.default.single_column (rnd_bigint bigint NOT NULL)";
+        assertUpdate(tableQuery);
+
+        @Language("SQL")
+        String testQuery = "SELECT count(rnd_bigint) FROM (SELECT rnd_bigint FROM single_column LIMIT 5) a";
+        assertQuery(testQuery, "VALUES (5)");
+
+        testQuery = "SELECT count(distinct rnd_bigint) FROM single_column LIMIT 5";
+        assertQuery(testQuery, "VALUES (1000)");
+        assertUpdate("DROP TABLE faker.default.single_column");
+    }
 }

@@ -22,18 +22,21 @@ import io.trino.spi.connector.SchemaTableName;
 import java.util.Objects;
 
 public class FakerTableHandle
-        implements ConnectorTableHandle
+        implements ConnectorTableHandle, Cloneable
 {
     private final long id;
     private final SchemaTableName schemaTableName;
+    private long limit;
 
     @JsonCreator
     public FakerTableHandle(
             @JsonProperty("id") long id,
-            @JsonProperty("schemaTableName") SchemaTableName schemaTableName)
+            @JsonProperty("schemaTableName") SchemaTableName schemaTableName,
+            @JsonProperty("limit") long limit)
     {
         this.id = id;
         this.schemaTableName = schemaTableName;
+        this.limit = limit;
     }
 
     @JsonProperty
@@ -46,6 +49,12 @@ public class FakerTableHandle
     public SchemaTableName getSchemaTableName()
     {
         return schemaTableName;
+    }
+
+    @JsonProperty("limit")
+    public long getLimit()
+    {
+        return limit;
     }
 
     @Override
@@ -71,5 +80,23 @@ public class FakerTableHandle
     public String toString()
     {
         return schemaTableName.getTableName();
+    }
+
+    @Override
+    public FakerTableHandle clone()
+    {
+        try {
+            return (FakerTableHandle) super.clone();
+        }
+        catch (CloneNotSupportedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public FakerTableHandle cloneWithLimit(long limit)
+    {
+        FakerTableHandle tableHandle = this.clone();
+        tableHandle.limit = limit;
+        return tableHandle;
     }
 }

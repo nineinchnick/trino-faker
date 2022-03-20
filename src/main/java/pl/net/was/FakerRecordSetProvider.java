@@ -88,7 +88,8 @@ public class FakerRecordSetProvider
                 .map(c -> (FakerColumnHandle) c)
                 .collect(toList());
 
-        Stream<List<Object>> stream = Stream.generate(() -> generateRow(handles)).limit(1000L);
+        FakerTableHandle fakerTable = (FakerTableHandle) table;
+        Stream<List<Object>> stream = Stream.generate(() -> generateRow(handles)).limit(fakerTable.getLimit());
         Iterable<List<Object>> rows = stream::iterator;
 
         List<Type> mappedTypes = handles

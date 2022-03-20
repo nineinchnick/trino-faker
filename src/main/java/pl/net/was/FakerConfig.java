@@ -15,20 +15,27 @@
 package pl.net.was;
 
 import io.airlift.configuration.Config;
+import io.airlift.configuration.ConfigDescription;
+
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 
 public class FakerConfig
 {
-    private String someSetting = "default-value";
+    private long defaultLimit = 1000L;
 
-    public String getSomeSetting()
+    @NotNull
+    @Min(1)
+    public long getDefaultLimit()
     {
-        return someSetting;
+        return defaultLimit;
     }
 
-    @Config("some_setting")
-    public FakerConfig setSomeSetting(String value)
+    @Config("default_limit")
+    @ConfigDescription("Default limit of number of rows for each table, when the LIMIT clause is not specified in the query")
+    public FakerConfig setDefaultLimit(long value)
     {
-        this.someSetting = value;
+        this.defaultLimit = value;
         return this;
     }
 }
