@@ -5,7 +5,7 @@ Trino Connector
 
 This is a [Trino](http://trino.io/) connector that generates random data. It has two goals:
 1. Be easy to use.
-2. Support all Trino's data types.
+2. Support most Trino's data types.
 3. Generate random data that looks as real as possible and is correct, that is it matches all the constraints.
 
 # Quick Start
@@ -16,14 +16,36 @@ docker run \
   -d \
   --name trino-faker \
   -p 8080:8080 \
-  nineinchnick/trino-faker:0.1
+  nineinchnick/trino-faker:0.6
 ```
 
 Then use your favourite SQL client to connect to Trino running at http://localhost:8080
 
+Try creating a table that looks like an existing table in a real database and insert some random data back into it:
+```sql
+CREATE TABLE faker.default.customers LIKE production.public.customers WITH (null_probability = 0.01);
+INSERT INTO production.public.customers SELECT * FROM faker.default.customers LIMIT 100;
+```
+
+To have more control over the format of the generated data:
+```sql
+SHOW CREATE TABLE production.public.customers;
+-- copy the output of the above query and add some properties:
+CREATE TABLE faker.default.customer (
+  id UUID NOT NULL,
+  name VARCHAR NOT NULL WITH (generator = '#{Name.first_name} #{Name.last_name}'), 
+  address VARCHAR NOT NULL WITH (generator = '#{Address.fullAddress}'),
+  age_years INTEGER
+);
+```
+
+See the Datafaker's documentation for more information about
+[the expression](https://www.datafaker.net/documentation/expressions/) syntax
+and [available providers](https://www.datafaker.net/documentation/providers/).
+
 # Usage
 
-Download one of the ZIP packages, unzip it and copy the `trino-faker-0.16` directory to the plugin directory on every node in your Trino cluster.
+Download one of the ZIP packages, unzip it and copy the `trino-faker-0.6` directory to the plugin directory on every node in your Trino cluster.
 Create a `faker.properties` file in your Trino catalog directory and set all the required properties.
 
 ```
@@ -31,6 +53,33 @@ connector.name=faker
 ```
 
 After reloading Trino, you should be able to connect to the `faker` catalog.
+
+## Generators
+
+Particular data generator is selected based on the column type.
+
+For `CHAR`, `VARCHAR` and `VARBINARY` column, the default generator uses the `Lorem ipsum` placeholder text.
+Unbounded columns will have a random sentence with 1 to 20 words.
+
+To have more control over the format of the generated data, use the `generator` column property. Some examples of valid generator expressions:
+* `#{regexify '(a|b){2,3}'}`
+* `#{regexify '\\.\\*\\?\\+'}`
+* `#{bothify '????','false'}`
+* `#{Name.first_name} #{Name.first_name} #{Name.last_name}`
+* `#{number.number_between '1','10'}`
+
+Generator expressions cannot be used for non-character based columns.
+
+## Number of generated rows
+
+To control how many rows are generated for a table, use the `LIMIT` clause in the query.
+A default limit can be set using the `default_limit` table or schema property or in the connector configuration file.
+
+## Null values
+
+For columns without the `NOT NULL` constraint, null values will be generated using the default probability of 50% (0.5).
+It can be modified using the `null_probability` property set for a column, table or schema.
+The default value of 0.5 can be also modified in the connector configuration file.
 
 # Build
 
@@ -56,7 +105,7 @@ An example command to run the Trino server with the faker plugin and catalog ena
 ```bash
 src=$(git rev-parse --show-toplevel)
 docker run \
-  -v $src/target/trino-faker-0.1-SNAPSHOT:/usr/lib/trino/plugin/faker \
+  -v $src/target/trino-faker-0.7-SNAPSHOT:/usr/lib/trino/plugin/faker \
   -v $src/catalog:/usr/lib/trino/default/etc/catalog \
   -p 8080:8080 \
   --name trino \

@@ -36,6 +36,9 @@ import io.trino.spi.connector.SchemaTablePrefix;
 import io.trino.spi.connector.TableColumnsMetadata;
 import io.trino.spi.security.TrinoPrincipal;
 import io.trino.spi.statistics.ComputedStatistics;
+import io.trino.spi.type.CharType;
+import io.trino.spi.type.VarbinaryType;
+import io.trino.spi.type.VarcharType;
 
 import javax.inject.Inject;
 
@@ -53,6 +56,7 @@ import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.base.Verify.verify;
 import static com.google.common.collect.ImmutableMap.toImmutableMap;
 import static io.trino.spi.StandardErrorCode.ALREADY_EXISTS;
+import static io.trino.spi.StandardErrorCode.INVALID_COLUMN_PROPERTY;
 import static io.trino.spi.StandardErrorCode.NOT_FOUND;
 import static io.trino.spi.connector.RetryMode.NO_RETRIES;
 import static java.lang.String.format;
@@ -270,12 +274,16 @@ public class FakerMetadata
         ImmutableList.Builder<ColumnInfo> columns = ImmutableList.builder();
         for (int i = 0; i < tableMetadata.getColumns().size(); i++) {
             ColumnMetadata column = tableMetadata.getColumns().get(i);
+            if (column.getProperties().containsKey(ColumnInfo.GENERATOR_PROPERTY)
+                    && !(column.getType() instanceof CharType || column.getType() instanceof VarcharType || column.getType() instanceof VarbinaryType)) {
+                throw new TrinoException(INVALID_COLUMN_PROPERTY, "The `generator` property can only be set for CHAR, VARCHAR or VARBINARY columns");
+            }
             double nullProbability = 0;
             if (column.isNullable()) {
                 nullProbability = (double) column.getProperties().getOrDefault(ColumnInfo.NULL_PROBABILITY_PROPERTY, tableNullProbability);
             }
             columns.add(new ColumnInfo(
-                    new FakerColumnHandle(i, column.getName(), column.getType(), nullProbability),
+                    new FakerColumnHandle(i, column.getName(), column.getType(), nullProbability, (String) column.getProperties().get(ColumnInfo.GENERATOR_PROPERTY)),
                     column));
         }
 

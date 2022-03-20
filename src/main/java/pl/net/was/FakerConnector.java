@@ -33,6 +33,7 @@ import java.util.Set;
 import static io.trino.spi.connector.ConnectorCapabilities.NOT_NULL_COLUMN_CONSTRAINT;
 import static io.trino.spi.session.PropertyMetadata.doubleProperty;
 import static io.trino.spi.session.PropertyMetadata.longProperty;
+import static io.trino.spi.session.PropertyMetadata.stringProperty;
 import static java.util.Objects.requireNonNull;
 import static pl.net.was.FakerTransactionHandle.INSTANCE;
 
@@ -127,6 +128,12 @@ public class FakerConnector
                         ColumnInfo.NULL_PROBABILITY_PROPERTY,
                         "Default probability of null values in this column, if it allows them",
                         null,
+                        false),
+                stringProperty(
+                        ColumnInfo.GENERATOR_PROPERTY,
+                        "Name of the Faker library generator used to generate data for this column",
+                        null,
+                        recordSetProvider::validateGenerator,
                         false));
     }
 }

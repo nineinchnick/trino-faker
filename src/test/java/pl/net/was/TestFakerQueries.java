@@ -166,4 +166,21 @@ public class TestFakerQueries
         assertUpdate("DROP TABLE faker.default.only_nulls");
         assertUpdate("DROP TABLE faker.default.only_nulls_column");
     }
+
+    @Test
+    public void selectGenerator()
+    {
+        @Language("SQL")
+        String tableQuery = "CREATE TABLE faker.default.generators (" +
+                "name VARCHAR NOT NULL WITH (generator = '#{Name.first_name} #{Name.last_name}'), " +
+                "age_years INTEGER NOT NULL" +
+                ")";
+        assertUpdate(tableQuery);
+
+        @Language("SQL")
+        String testQuery = "SELECT count(name) FILTER (WHERE LENGTH(name) - LENGTH(REPLACE(name, ' ', '')) = 1) FROM generators";
+        assertQuery(testQuery, "VALUES (1000)");
+
+        assertUpdate("DROP TABLE faker.default.generators");
+    }
 }

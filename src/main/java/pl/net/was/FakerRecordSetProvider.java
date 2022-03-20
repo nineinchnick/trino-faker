@@ -39,6 +39,7 @@ import javax.inject.Inject;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 import java.util.stream.Stream;
 
@@ -109,6 +110,10 @@ public class FakerRecordSetProvider
         if (handle.getNullProbability() > 0 && random.nextDouble() <= handle.getNullProbability()) {
             return null;
         }
+        Optional<String> generator = handle.getGenerator();
+        if (generator.isPresent()) {
+            return faker.expression(generator.get());
+        }
         Type type = handle.getType();
         // check every type in order defined in StandardTypes
         if (BIGINT.equals(type)) {
@@ -152,12 +157,12 @@ public class FakerRecordSetProvider
             return faker.number().numberBetween(Long.MIN_VALUE, Long.MAX_VALUE);
         }
         if (type instanceof VarbinaryType) {
-            return faker.lorem().sentence(20).getBytes();
+            return faker.lorem().sentence(random.nextInt(20)).getBytes();
         }
         if (type instanceof VarcharType) {
             VarcharType varcharType = (VarcharType) type;
             return varcharType.getLength()
-                    .map(length -> faker.lorem().maxLengthSentence(length))
+                    .map(length -> faker.lorem().maxLengthSentence(random.nextInt(length)))
                     .orElse(faker.lorem().sentence(20));
         }
         if (type instanceof CharType) {
@@ -191,5 +196,10 @@ public class FakerRecordSetProvider
         }
 
         throw new IllegalArgumentException("Unsupported type " + type);
+    }
+
+    public void validateGenerator(String generator)
+    {
+        faker.expression(generator);
     }
 }

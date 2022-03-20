@@ -20,6 +20,7 @@ import io.trino.spi.connector.ColumnHandle;
 import io.trino.spi.type.Type;
 
 import java.util.Objects;
+import java.util.Optional;
 
 public class FakerColumnHandle
         implements ColumnHandle
@@ -28,18 +29,21 @@ public class FakerColumnHandle
     private final String name;
     private final Type type;
     private final double nullProbability;
+    private final String generator;
 
     @JsonCreator
     public FakerColumnHandle(
             @JsonProperty("columnIndex") int columnIndex,
             @JsonProperty("name") String name,
             @JsonProperty("type") Type type,
-            @JsonProperty("nullProbability") double nullProbability)
+            @JsonProperty("nullProbability") double nullProbability,
+            @JsonProperty("generator") String generator)
     {
         this.columnIndex = columnIndex;
         this.name = name;
         this.type = type;
         this.nullProbability = nullProbability;
+        this.generator = generator;
     }
 
     @JsonProperty("columnIndex")
@@ -64,6 +68,12 @@ public class FakerColumnHandle
     public double getNullProbability()
     {
         return nullProbability;
+    }
+
+    @JsonProperty("generator")
+    public Optional<String> getGenerator()
+    {
+        return Optional.ofNullable(generator);
     }
 
     @Override

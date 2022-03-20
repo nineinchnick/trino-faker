@@ -33,6 +33,7 @@ public class ColumnInfo
     private final ColumnMetadata metadata;
 
     public static final String NULL_PROBABILITY_PROPERTY = "null_probability";
+    public static final String GENERATOR_PROPERTY = "generator";
 
     public ColumnInfo(ColumnHandle handle, String name, Type type, Map<String, Object> properties, Optional<String> comment)
     {
