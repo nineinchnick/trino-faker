@@ -14,28 +14,39 @@
 package pl.net.was;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import io.trino.spi.connector.ColumnHandle;
 import io.trino.spi.connector.ConnectorTableMetadata;
 import io.trino.spi.connector.SchemaTableName;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static java.util.Objects.requireNonNull;
 
 public class TableInfo
+        implements Cloneable
 {
     private final long id;
     private final String schemaName;
     private final String tableName;
-    private final List<ColumnInfo> columns;
+    private List<ColumnInfo> columns;
+    private Map<String, Object> properties;
+    private Optional<String> comment;
 
-    public TableInfo(long id, String schemaName, String tableName, List<ColumnInfo> columns)
+    public static final String NULL_PROBABILITY_PROPERTY = "null_probability";
+    public static final String DEFAULT_LIMIT_PROPERTY = "default_limit";
+
+    public TableInfo(long id, String schemaName, String tableName, List<ColumnInfo> columns, Map<String, Object> properties, Optional<String> comment)
     {
         this.id = id;
         this.schemaName = requireNonNull(schemaName, "schemaName is null");
         this.tableName = requireNonNull(tableName, "tableName is null");
         this.columns = ImmutableList.copyOf(columns);
+        this.properties = ImmutableMap.copyOf(requireNonNull(properties, "properties is null"));
+        this.comment = requireNonNull(comment, "comment is null");
     }
 
     public long getId()
@@ -64,7 +75,9 @@ public class TableInfo
                 new SchemaTableName(schemaName, tableName),
                 columns.stream()
                         .map(ColumnInfo::getMetadata)
-                        .collect(Collectors.toList()));
+                        .collect(Collectors.toList()),
+                properties,
+                comment);
     }
 
     public List<ColumnInfo> getColumns()
@@ -78,5 +91,47 @@ public class TableInfo
                 .filter(column -> column.getHandle().equals(handle))
                 .findFirst()
                 .get();
+    }
+
+    public Map<String, Object> getProperties()
+    {
+        return properties;
+    }
+
+    public Optional<String> getComment()
+    {
+        return comment;
+    }
+
+    @Override
+    public TableInfo clone()
+    {
+        try {
+            return (TableInfo) super.clone();
+        }
+        catch (CloneNotSupportedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public TableInfo cloneWithColumns(List<ColumnInfo> columns)
+    {
+        TableInfo tableInfo = this.clone();
+        tableInfo.columns = columns;
+        return tableInfo;
+    }
+
+    public TableInfo cloneWithProperties(Map<String, Object> properties)
+    {
+        TableInfo tableInfo = this.clone();
+        tableInfo.properties = properties;
+        return tableInfo;
+    }
+
+    public TableInfo cloneWithComment(Optional<String> comment)
+    {
+        TableInfo tableInfo = this.clone();
+        tableInfo.comment = comment;
+        return tableInfo;
     }
 }

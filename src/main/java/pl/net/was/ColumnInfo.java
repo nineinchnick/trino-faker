@@ -17,19 +17,41 @@ import io.trino.spi.connector.ColumnHandle;
 import io.trino.spi.connector.ColumnMetadata;
 import io.trino.spi.type.Type;
 
+import java.util.Map;
+import java.util.Optional;
+
 import static java.util.Objects.requireNonNull;
 
 public class ColumnInfo
+        implements Cloneable
 {
     private final ColumnHandle handle;
     private final String name;
     private final Type type;
+    private Map<String, Object> properties;
+    private Optional<String> comment;
+    private final ColumnMetadata metadata;
 
-    public ColumnInfo(ColumnHandle handle, String name, Type type)
+    public static final String NULL_PROBABILITY_PROPERTY = "null_probability";
+
+    public ColumnInfo(ColumnHandle handle, String name, Type type, Map<String, Object> properties, Optional<String> comment)
+    {
+        this(handle, ColumnMetadata.builder()
+                .setName(name)
+                .setType(type)
+                .setProperties(properties)
+                .setComment(comment)
+                .build());
+    }
+
+    public ColumnInfo(ColumnHandle handle, ColumnMetadata metadata)
     {
         this.handle = requireNonNull(handle, "handle is null");
-        this.name = requireNonNull(name, "name is null");
-        this.type = requireNonNull(type, "type is null");
+        this.metadata = requireNonNull(metadata, "metadata is null");
+        this.name = metadata.getName();
+        this.type = metadata.getType();
+        this.properties = metadata.getProperties();
+        this.comment = Optional.ofNullable(metadata.getComment());
     }
 
     public ColumnHandle getHandle()
@@ -44,12 +66,37 @@ public class ColumnInfo
 
     public ColumnMetadata getMetadata()
     {
-        return new ColumnMetadata(name, type);
+        return metadata;
     }
 
     @Override
     public String toString()
     {
         return name + "::" + type;
+    }
+
+    @Override
+    public ColumnInfo clone()
+    {
+        try {
+            return (ColumnInfo) super.clone();
+        }
+        catch (CloneNotSupportedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public ColumnInfo cloneWithProperties(Map<String, Object> properties)
+    {
+        ColumnInfo tableInfo = this.clone();
+        tableInfo.properties = properties;
+        return tableInfo;
+    }
+
+    public ColumnInfo cloneWithComment(Optional<String> comment)
+    {
+        ColumnInfo tableInfo = this.clone();
+        tableInfo.comment = comment;
+        return tableInfo;
     }
 }

@@ -14,6 +14,7 @@
 
 package pl.net.was;
 
+import com.google.common.collect.ImmutableList;
 import io.trino.spi.connector.Connector;
 import io.trino.spi.connector.ConnectorCapabilities;
 import io.trino.spi.connector.ConnectorMetadata;
@@ -21,13 +22,17 @@ import io.trino.spi.connector.ConnectorRecordSetProvider;
 import io.trino.spi.connector.ConnectorSession;
 import io.trino.spi.connector.ConnectorSplitManager;
 import io.trino.spi.connector.ConnectorTransactionHandle;
+import io.trino.spi.session.PropertyMetadata;
 import io.trino.spi.transaction.IsolationLevel;
 
 import javax.inject.Inject;
 
+import java.util.List;
 import java.util.Set;
 
 import static io.trino.spi.connector.ConnectorCapabilities.NOT_NULL_COLUMN_CONSTRAINT;
+import static io.trino.spi.session.PropertyMetadata.doubleProperty;
+import static io.trino.spi.session.PropertyMetadata.longProperty;
 import static java.util.Objects.requireNonNull;
 import static pl.net.was.FakerTransactionHandle.INSTANCE;
 
@@ -37,6 +42,9 @@ public class FakerConnector
     private final FakerMetadata metadata;
     private final FakerSplitManager splitManager;
     private final FakerRecordSetProvider recordSetProvider;
+
+    public static final String NULL_PROBABILITY_PROPERTY = "null_probability";
+    public static final String DEFAULT_LIMIT_PROPERTY = "default_limit";
 
     @Inject
     public FakerConnector(
@@ -77,5 +85,48 @@ public class FakerConnector
     public Set<ConnectorCapabilities> getCapabilities()
     {
         return Set.of(NOT_NULL_COLUMN_CONSTRAINT);
+    }
+
+    @Override
+    public List<PropertyMetadata<?>> getSchemaProperties()
+    {
+        return ImmutableList.of(
+                doubleProperty(
+                        SchemaInfo.NULL_PROBABILITY_PROPERTY,
+                        "Default probability of null values in any column that allows them, in any table of this schema",
+                        null,
+                        false),
+                longProperty(
+                        SchemaInfo.DEFAULT_LIMIT_PROPERTY,
+                        "Default limit of rows returned from any table in this schema, if not specified in the query",
+                        null,
+                        false));
+    }
+
+    @Override
+    public List<PropertyMetadata<?>> getTableProperties()
+    {
+        return ImmutableList.of(
+                doubleProperty(
+                        TableInfo.NULL_PROBABILITY_PROPERTY,
+                        "Default probability of null values in any column in this table that allows them",
+                        null,
+                        false),
+                longProperty(
+                        TableInfo.DEFAULT_LIMIT_PROPERTY,
+                        "Default limit of rows returned from this table if not specified in the query",
+                        null,
+                        false));
+    }
+
+    @Override
+    public List<PropertyMetadata<?>> getColumnProperties()
+    {
+        return ImmutableList.of(
+                doubleProperty(
+                        ColumnInfo.NULL_PROBABILITY_PROPERTY,
+                        "Default probability of null values in this column, if it allows them",
+                        null,
+                        false));
     }
 }

@@ -106,7 +106,7 @@ public class FakerRecordSetProvider
 
     private Object generateValue(FakerColumnHandle handle)
     {
-        if (handle.getIsNullable() && random.nextBoolean()) {
+        if (handle.getNullProbability() > 0 && random.nextDouble() <= handle.getNullProbability()) {
             return null;
         }
         Type type = handle.getType();

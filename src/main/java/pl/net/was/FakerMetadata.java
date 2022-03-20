@@ -18,6 +18,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import io.airlift.slice.Slice;
 import io.trino.spi.TrinoException;
+import io.trino.spi.connector.CatalogSchemaName;
 import io.trino.spi.connector.ColumnHandle;
 import io.trino.spi.connector.ColumnMetadata;
 import io.trino.spi.connector.ConnectorMetadata;
@@ -27,7 +28,6 @@ import io.trino.spi.connector.ConnectorSession;
 import io.trino.spi.connector.ConnectorTableHandle;
 import io.trino.spi.connector.ConnectorTableLayout;
 import io.trino.spi.connector.ConnectorTableMetadata;
-import io.trino.spi.connector.ConnectorTableProperties;
 import io.trino.spi.connector.LimitApplicationResult;
 import io.trino.spi.connector.RetryMode;
 import io.trino.spi.connector.SchemaNotFoundException;
@@ -46,6 +46,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.google.common.base.Preconditions.checkState;
@@ -63,7 +64,7 @@ public class FakerMetadata
 {
     public static final String SCHEMA_NAME = "default";
 
-    private final List<String> schemas = new ArrayList<>();
+    private final List<SchemaInfo> schemas = new ArrayList<>();
     private final FakerConfig config;
 
     private final AtomicLong nextTableId = new AtomicLong();
@@ -73,43 +74,53 @@ public class FakerMetadata
     @Inject
     public FakerMetadata(FakerConfig config)
     {
-        this.schemas.add(SCHEMA_NAME);
+        this.schemas.add(new SchemaInfo(SCHEMA_NAME));
         this.config = config;
     }
 
     @Override
     public List<String> listSchemaNames(ConnectorSession connectorSession)
     {
-        return ImmutableList.copyOf(schemas);
+        return schemas.stream().map(SchemaInfo::getName).collect(Collectors.toUnmodifiableList());
     }
 
     @Override
     public synchronized void createSchema(ConnectorSession session, String schemaName, Map<String, Object> properties, TrinoPrincipal owner)
     {
-        if (schemas.contains(schemaName)) {
+        if (schemas.stream().anyMatch(schema -> schema.getName().equals(schemaName))) {
             throw new TrinoException(ALREADY_EXISTS, format("Schema [%s] already exists", schemaName));
         }
-        schemas.add(schemaName);
+        schemas.add(new SchemaInfo(schemaName, properties));
     }
 
     @Override
     public synchronized void dropSchema(ConnectorSession session, String schemaName)
     {
-        if (!schemas.contains(schemaName)) {
-            throw new TrinoException(NOT_FOUND, format("Schema [%s] does not exist", schemaName));
-        }
+        verify(schemas.remove(getSchema(schemaName)));
+    }
 
-        verify(schemas.remove(schemaName));
+    private SchemaInfo getSchema(String name)
+    {
+        Optional<SchemaInfo> schema = schemas.stream()
+                .filter(s -> s.getName().equals(name))
+                .findAny();
+        if (schema.isEmpty()) {
+            throw new TrinoException(NOT_FOUND, format("Schema [%s] does not exist", name));
+        }
+        return schema.get();
     }
 
     @Override
     public ConnectorTableHandle getTableHandle(ConnectorSession connectorSession, SchemaTableName schemaTableName)
     {
+        SchemaInfo schema = getSchema(schemaTableName.getSchemaName());
         Long id = tableIds.get(schemaTableName);
         if (id == null) {
             return null;
         }
-        return new FakerTableHandle(id, schemaTableName, config.getDefaultLimit());
+        long schemaLimit = (long) schema.getProperties().getOrDefault(SchemaInfo.DEFAULT_LIMIT_PROPERTY, config.getDefaultLimit());
+        long tableLimit = (long) tables.get(id).getProperties().getOrDefault(TableInfo.DEFAULT_LIMIT_PROPERTY, schemaLimit);
+        return new FakerTableHandle(id, schemaTableName, tableLimit);
     }
 
     @Override
@@ -183,10 +194,60 @@ public class FakerMetadata
         long tableId = handle.getId();
 
         TableInfo oldInfo = tables.get(tableId);
-        tables.put(tableId, new TableInfo(tableId, newTableName.getSchemaName(), newTableName.getTableName(), oldInfo.getColumns()));
+        tables.put(tableId, new TableInfo(
+                tableId,
+                newTableName.getSchemaName(),
+                newTableName.getTableName(),
+                oldInfo.getColumns(),
+                oldInfo.getProperties(),
+                oldInfo.getComment()));
 
         tableIds.remove(oldInfo.getSchemaTableName());
         tableIds.put(newTableName, tableId);
+    }
+
+    @Override
+    public void setTableProperties(ConnectorSession session, ConnectorTableHandle tableHandle, Map<String, Optional<Object>> properties)
+    {
+        FakerTableHandle handle = (FakerTableHandle) tableHandle;
+        long tableId = handle.getId();
+
+        TableInfo oldInfo = tables.get(tableId);
+        Map<String, Object> newProperties = Stream.concat(
+                        oldInfo.getProperties().entrySet().stream()
+                                .filter(entry -> !properties.containsKey(entry.getKey())),
+                        properties.entrySet().stream()
+                                .filter(entry -> entry.getValue().isPresent()))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        tables.put(tableId, oldInfo.cloneWithProperties(newProperties));
+    }
+
+    @Override
+    public void setTableComment(ConnectorSession session, ConnectorTableHandle tableHandle, Optional<String> comment)
+    {
+        FakerTableHandle handle = (FakerTableHandle) tableHandle;
+        long tableId = handle.getId();
+
+        TableInfo oldInfo = tables.get(tableId);
+        tables.put(tableId, oldInfo.cloneWithComment(comment));
+    }
+
+    @Override
+    public void setColumnComment(ConnectorSession session, ConnectorTableHandle tableHandle, ColumnHandle column, Optional<String> comment)
+    {
+        FakerTableHandle handle = (FakerTableHandle) tableHandle;
+        long tableId = handle.getId();
+
+        TableInfo oldInfo = tables.get(tableId);
+        List<ColumnInfo> columns = oldInfo.getColumns().stream()
+                .map(columnInfo -> {
+                    if (columnInfo.getHandle().equals(column)) {
+                        return columnInfo.cloneWithComment(comment);
+                    }
+                    return columnInfo;
+                })
+                .collect(Collectors.toUnmodifiableList());
+        tables.put(tableId, oldInfo.cloneWithColumns(columns));
     }
 
     @Override
@@ -199,17 +260,23 @@ public class FakerMetadata
     @Override
     public synchronized FakerOutputTableHandle beginCreateTable(ConnectorSession session, ConnectorTableMetadata tableMetadata, Optional<ConnectorTableLayout> layout, RetryMode retryMode)
     {
-        checkSchemaExists(tableMetadata.getTable().getSchemaName());
+        SchemaInfo schema = getSchema(tableMetadata.getTable().getSchemaName());
         checkTableNotExists(tableMetadata.getTable());
         long tableId = nextTableId.getAndIncrement();
+
+        double schemaNullProbability = (double) schema.getProperties().getOrDefault(SchemaInfo.NULL_PROBABILITY_PROPERTY, config.getNullProbability());
+        double tableNullProbability = (double) tableMetadata.getProperties().getOrDefault(TableInfo.NULL_PROBABILITY_PROPERTY, schemaNullProbability);
 
         ImmutableList.Builder<ColumnInfo> columns = ImmutableList.builder();
         for (int i = 0; i < tableMetadata.getColumns().size(); i++) {
             ColumnMetadata column = tableMetadata.getColumns().get(i);
+            double nullProbability = 0;
+            if (column.isNullable()) {
+                nullProbability = (double) column.getProperties().getOrDefault(ColumnInfo.NULL_PROBABILITY_PROPERTY, tableNullProbability);
+            }
             columns.add(new ColumnInfo(
-                    new FakerColumnHandle(i, column.getName(), column.getType(), column.isNullable()),
-                    column.getName(),
-                    column.getType()));
+                    new FakerColumnHandle(i, column.getName(), column.getType(), nullProbability),
+                    column));
         }
 
         tableIds.put(tableMetadata.getTable(), tableId);
@@ -217,14 +284,16 @@ public class FakerMetadata
                 tableId,
                 tableMetadata.getTable().getSchemaName(),
                 tableMetadata.getTable().getTableName(),
-                columns.build()));
+                columns.build(),
+                tableMetadata.getProperties(),
+                tableMetadata.getComment()));
 
         return new FakerOutputTableHandle(tableId, ImmutableSet.copyOf(tableIds.values()));
     }
 
     private void checkSchemaExists(String schemaName)
     {
-        if (!schemas.contains(schemaName)) {
+        if (schemas.stream().noneMatch(schema -> schema.getName().equals(schemaName))) {
             throw new SchemaNotFoundException(schemaName);
         }
     }
@@ -253,14 +322,21 @@ public class FakerMetadata
 
         // TODO ensure fragments is empty?
 
-        tables.put(tableId, new TableInfo(tableId, info.getSchemaName(), info.getTableName(), info.getColumns()));
+        tables.put(tableId, new TableInfo(tableId, info.getSchemaName(), info.getTableName(), info.getColumns(), info.getProperties(), info.getComment()));
         return Optional.empty();
     }
 
     @Override
-    public ConnectorTableProperties getTableProperties(ConnectorSession session, ConnectorTableHandle table)
+    public Map<String, Object> getSchemaProperties(ConnectorSession session, CatalogSchemaName schemaName)
     {
-        return new ConnectorTableProperties();
+        Optional<SchemaInfo> schema = schemas.stream()
+                .filter(s -> s.getName().equals(schemaName.getSchemaName()))
+                .findAny();
+        if (schema.isEmpty()) {
+            throw new TrinoException(NOT_FOUND, format("Schema [%s] does not exist", schemaName));
+        }
+
+        return schema.get().getProperties();
     }
 
     @Override

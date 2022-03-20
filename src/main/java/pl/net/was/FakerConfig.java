@@ -17,12 +17,30 @@ package pl.net.was;
 import io.airlift.configuration.Config;
 import io.airlift.configuration.ConfigDescription;
 
+import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
 public class FakerConfig
 {
+    private double nullProbability = 0.5;
     private long defaultLimit = 1000L;
+
+    @NotNull
+    @Max(1)
+    @Min(0)
+    public double getNullProbability()
+    {
+        return nullProbability;
+    }
+
+    @Config("null_probability")
+    @ConfigDescription("Default null probability for any column in any table that allows them")
+    public FakerConfig setNullProbability(double value)
+    {
+        this.nullProbability = value;
+        return this;
+    }
 
     @NotNull
     @Min(1)

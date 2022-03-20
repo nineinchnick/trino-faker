@@ -133,4 +133,37 @@ public class TestFakerQueries
         assertQuery(testQuery, "VALUES (1000)");
         assertUpdate("DROP TABLE faker.default.single_column");
     }
+
+    @Test
+    public void selectDefaultTableLimit()
+    {
+        @Language("SQL")
+        String tableQuery = "CREATE TABLE faker.default.default_table_limit (rnd_bigint bigint NOT NULL) WITH (default_limit = 100)";
+        assertUpdate(tableQuery);
+
+        @Language("SQL")
+        String testQuery = "SELECT count(distinct rnd_bigint) FROM default_table_limit";
+        assertQuery(testQuery, "VALUES (100)");
+
+        assertUpdate("DROP TABLE faker.default.default_table_limit");
+    }
+
+    @Test
+    public void selectOnlyNulls()
+    {
+        @Language("SQL")
+        String tableQuery = "CREATE TABLE faker.default.only_nulls (rnd_bigint bigint) WITH (null_probability = 1.0)";
+        assertUpdate(tableQuery);
+        tableQuery = "CREATE TABLE faker.default.only_nulls_column (rnd_bigint bigint WITH (null_probability = 1.0))";
+        assertUpdate(tableQuery);
+
+        @Language("SQL")
+        String testQuery = "SELECT count(distinct rnd_bigint) FROM only_nulls";
+        assertQuery(testQuery, "VALUES (0)");
+        testQuery = "SELECT count(distinct rnd_bigint) FROM only_nulls_column";
+        assertQuery(testQuery, "VALUES (0)");
+
+        assertUpdate("DROP TABLE faker.default.only_nulls");
+        assertUpdate("DROP TABLE faker.default.only_nulls_column");
+    }
 }
