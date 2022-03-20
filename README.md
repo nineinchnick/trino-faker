@@ -59,7 +59,7 @@ After reloading Trino, you should be able to connect to the `faker` catalog.
 Particular data generator is selected based on the column type.
 
 For `CHAR`, `VARCHAR` and `VARBINARY` column, the default generator uses the `Lorem ipsum` placeholder text.
-Unbounded columns will have a random sentence with 1 to 20 words.
+Unbounded columns will have a random sentence with 3 to 40 words.
 
 To have more control over the format of the generated data, use the `generator` column property. Some examples of valid generator expressions:
 * `#{regexify '(a|b){2,3}'}`
