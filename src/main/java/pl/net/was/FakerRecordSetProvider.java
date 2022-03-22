@@ -25,8 +25,11 @@ import io.trino.spi.connector.RecordSet;
 import io.trino.spi.type.CharType;
 import io.trino.spi.type.DecimalType;
 import io.trino.spi.type.Int128;
+import io.trino.spi.type.LongTimeWithTimeZone;
+import io.trino.spi.type.LongTimestamp;
 import io.trino.spi.type.TimeType;
 import io.trino.spi.type.TimeWithTimeZoneType;
+import io.trino.spi.type.TimeZoneKey;
 import io.trino.spi.type.TimestampType;
 import io.trino.spi.type.TimestampWithTimeZoneType;
 import io.trino.spi.type.Type;
@@ -48,8 +51,11 @@ import static io.trino.spi.type.BooleanType.BOOLEAN;
 import static io.trino.spi.type.DateType.DATE;
 import static io.trino.spi.type.DoubleType.DOUBLE;
 import static io.trino.spi.type.IntegerType.INTEGER;
+import static io.trino.spi.type.LongTimestampWithTimeZone.fromEpochMillisAndFraction;
 import static io.trino.spi.type.RealType.REAL;
 import static io.trino.spi.type.SmallintType.SMALLINT;
+import static io.trino.spi.type.Timestamps.PICOSECONDS_PER_MICROSECOND;
+import static io.trino.spi.type.Timestamps.PICOSECONDS_PER_MILLISECOND;
 import static io.trino.spi.type.TinyintType.TINYINT;
 import static io.trino.spi.type.UuidType.UUID;
 import static io.trino.type.IntervalDayTimeType.INTERVAL_DAY_TIME;
@@ -150,11 +156,29 @@ public class FakerRecordSetProvider
         if (INTERVAL_YEAR_MONTH.equals(type)) {
             return faker.number().numberBetween(Integer.MIN_VALUE, Integer.MAX_VALUE);
         }
-        if (type instanceof TimestampType || type instanceof TimestampWithTimeZoneType) {
-            return faker.number().numberBetween(Long.MIN_VALUE, Long.MAX_VALUE);
+        if (type instanceof TimestampType) {
+            TimestampType tzType = (TimestampType) type;
+            if (tzType.getPrecision() <= TimestampType.MAX_SHORT_PRECISION) {
+                return random.nextLong();
+            }
+            return new LongTimestamp(random.nextLong(), random.nextInt(PICOSECONDS_PER_MICROSECOND));
         }
-        if (type instanceof TimeType || type instanceof TimeWithTimeZoneType) {
-            return faker.number().numberBetween(Long.MIN_VALUE, Long.MAX_VALUE);
+        if (type instanceof TimestampWithTimeZoneType) {
+            TimestampWithTimeZoneType tzType = (TimestampWithTimeZoneType) type;
+            if (tzType.getPrecision() <= TimestampWithTimeZoneType.MAX_SHORT_PRECISION) {
+                return random.nextLong();
+            }
+            return fromEpochMillisAndFraction(faker.number().numberBetween(0, 0x0007FFFFFFFFFFFFL - 1), random.nextInt(PICOSECONDS_PER_MILLISECOND), TimeZoneKey.UTC_KEY);
+        }
+        if (type instanceof TimeType) {
+            return random.nextLong();
+        }
+        if (type instanceof TimeWithTimeZoneType) {
+            TimeWithTimeZoneType timeType = (TimeWithTimeZoneType) type;
+            if (timeType.getPrecision() <= TimeWithTimeZoneType.MAX_SHORT_PRECISION) {
+                return random.nextLong();
+            }
+            return new LongTimeWithTimeZone(random.nextLong(), 0);
         }
         if (type instanceof VarbinaryType) {
             return faker.lorem().sentence(3 + random.nextInt(38)).getBytes();

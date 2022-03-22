@@ -16,7 +16,7 @@ docker run \
   -d \
   --name trino-faker \
   -p 8080:8080 \
-  nineinchnick/trino-faker:0.7
+  nineinchnick/trino-faker:0.8
 ```
 
 Then use your favourite SQL client to connect to Trino running at http://localhost:8080
@@ -45,7 +45,7 @@ and [available providers](https://www.datafaker.net/documentation/providers/).
 
 # Usage
 
-Download one of the ZIP packages, unzip it and copy the `trino-faker-0.7` directory to the plugin directory on every node in your Trino cluster.
+Download one of the ZIP packages, unzip it and copy the `trino-faker-0.8` directory to the plugin directory on every node in your Trino cluster.
 Create a `faker.properties` file in your Trino catalog directory and set all the required properties.
 
 ```
@@ -105,7 +105,7 @@ An example command to run the Trino server with the faker plugin and catalog ena
 ```bash
 src=$(git rev-parse --show-toplevel)
 docker run \
-  -v $src/target/trino-faker-0.8-SNAPSHOT:/usr/lib/trino/plugin/faker \
+  -v $src/target/trino-faker-0.9-SNAPSHOT:/usr/lib/trino/plugin/faker \
   -v $src/catalog:/usr/lib/trino/default/etc/catalog \
   -p 8080:8080 \
   --name trino \

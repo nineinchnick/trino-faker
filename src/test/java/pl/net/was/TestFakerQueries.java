@@ -54,9 +54,21 @@ public class TestFakerQueries
                 "rnd_interval_day_time interval day to second NOT NULL, " +
                 "rnd_interval_year interval year to month NOT NULL, " +
                 "rnd_timestamp timestamp NOT NULL, " +
+                "rnd_timestamp0 timestamp(0) NOT NULL, " +
+                "rnd_timestamp6 timestamp(6) NOT NULL, " +
+                "rnd_timestamp9 timestamp(9) NOT NULL, " +
                 "rnd_timestamptz timestamp with time zone NOT NULL, " +
+                "rnd_timestamptz0 timestamp(0) with time zone NOT NULL, " +
+                "rnd_timestamptz6 timestamp(6) with time zone NOT NULL, " +
+                "rnd_timestamptz9 timestamp(9) with time zone NOT NULL, " +
                 "rnd_time time NOT NULL, " +
+                "rnd_time0 time(0) NOT NULL, " +
+                "rnd_time6 time(6) NOT NULL, " +
+                "rnd_time9 time(9) NOT NULL, " +
                 "rnd_timetz time with time zone NOT NULL, " +
+                "rnd_timetz0 time(0) with time zone NOT NULL, " +
+                "rnd_timetz6 time(6) with time zone NOT NULL, " +
+                "rnd_timetz9 time(9) with time zone NOT NULL, " +
                 "rnd_varbinary varbinary NOT NULL, " +
                 "rnd_varchar varchar NOT NULL, " +
                 "rnd_char char NOT NULL, " +
@@ -79,9 +91,21 @@ public class TestFakerQueries
                 "count(distinct rnd_interval_day_time), " +
                 "count(distinct rnd_interval_year), " +
                 "count(distinct rnd_timestamp), " +
+                "count(distinct rnd_timestamp0), " +
+                "count(distinct rnd_timestamp6), " +
+                "count(distinct rnd_timestamp9), " +
                 "count(distinct rnd_timestamptz), " +
+                "count(distinct rnd_timestamptz0), " +
+                "count(distinct rnd_timestamptz6), " +
+                "count(distinct rnd_timestamptz9), " +
                 "count(distinct rnd_time), " +
+                "count(distinct rnd_time0), " +
+                "count(distinct rnd_time6), " +
+                "count(distinct rnd_time9), " +
                 "count(distinct rnd_timetz), " +
+                "count(distinct rnd_timetz0), " +
+                "count(distinct rnd_timetz6), " +
+                "count(distinct rnd_timetz9), " +
                 "count(distinct rnd_varbinary), " +
                 "count(distinct rnd_varchar), " +
                 "count(distinct rnd_char), " +
@@ -105,7 +129,19 @@ public class TestFakerQueries
                         // timestamps
                         "1000," +
                         "1000," +
+                        "1000," +
+                        "1000," +
+                        "1000," +
+                        "1000," +
+                        "1000," +
+                        "1000," +
                         // time
+                        "1000," +
+                        "1000," +
+                        "1000," +
+                        "1000," +
+                        "1000," +
+                        "1000," +
                         "1000," +
                         "1000," +
                         // varbinary, varchar, char
