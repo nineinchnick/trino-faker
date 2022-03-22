@@ -124,6 +124,7 @@ public class FakerMetadata
         }
         long schemaLimit = (long) schema.getProperties().getOrDefault(SchemaInfo.DEFAULT_LIMIT_PROPERTY, config.getDefaultLimit());
         long tableLimit = (long) tables.get(id).getProperties().getOrDefault(TableInfo.DEFAULT_LIMIT_PROPERTY, schemaLimit);
+        tableLimit = (tableLimit + config.getMinSplits() - 1) / config.getMinSplits();
         return new FakerTableHandle(id, schemaTableName, tableLimit);
     }
 

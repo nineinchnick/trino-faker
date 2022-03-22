@@ -25,6 +25,7 @@ public class FakerConfig
 {
     private double nullProbability = 0.5;
     private long defaultLimit = 1000L;
+    private int minSplits = 4;
 
     @NotNull
     @Max(1)
@@ -54,6 +55,22 @@ public class FakerConfig
     public FakerConfig setDefaultLimit(long value)
     {
         this.defaultLimit = value;
+        return this;
+    }
+
+    @NotNull
+    @Min(1)
+    @Max(1_000)
+    public int getMinSplits()
+    {
+        return minSplits;
+    }
+
+    @Config("min_splits")
+    @ConfigDescription("Minimum number of splits per node")
+    public FakerConfig setMinSplits(int value)
+    {
+        this.minSplits = value;
         return this;
     }
 }
