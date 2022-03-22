@@ -219,4 +219,12 @@ public class TestFakerQueries
 
         assertUpdate("DROP TABLE faker.default.generators");
     }
+
+    @Test
+    public void selectFunctions()
+    {
+        @Language("SQL")
+        String testQuery = "SELECT random_expression('#{options.option ''a'', ''b''}') IN ('a', 'b')";
+        assertQuery(testQuery, "VALUES (true)");
+    }
 }
