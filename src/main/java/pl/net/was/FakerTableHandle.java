@@ -16,8 +16,10 @@ package pl.net.was;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.trino.spi.connector.ColumnHandle;
 import io.trino.spi.connector.ConnectorTableHandle;
 import io.trino.spi.connector.SchemaTableName;
+import io.trino.spi.predicate.TupleDomain;
 
 import java.util.Objects;
 
@@ -26,16 +28,19 @@ public class FakerTableHandle
 {
     private final long id;
     private final SchemaTableName schemaTableName;
+    private TupleDomain<ColumnHandle> constraint;
     private long limit;
 
     @JsonCreator
     public FakerTableHandle(
             @JsonProperty("id") long id,
             @JsonProperty("schemaTableName") SchemaTableName schemaTableName,
+            @JsonProperty("constraint") TupleDomain<ColumnHandle> constraint,
             @JsonProperty("limit") long limit)
     {
         this.id = id;
         this.schemaTableName = schemaTableName;
+        this.constraint = constraint;
         this.limit = limit;
     }
 
@@ -49,6 +54,12 @@ public class FakerTableHandle
     public SchemaTableName getSchemaTableName()
     {
         return schemaTableName;
+    }
+
+    @JsonProperty("constraint")
+    public TupleDomain<ColumnHandle> getConstraint()
+    {
+        return constraint;
     }
 
     @JsonProperty("limit")
@@ -91,6 +102,13 @@ public class FakerTableHandle
         catch (CloneNotSupportedException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public FakerTableHandle cloneWithConstraint(TupleDomain<ColumnHandle> constraint)
+    {
+        FakerTableHandle tableHandle = this.clone();
+        tableHandle.constraint = constraint;
+        return tableHandle;
     }
 
     public FakerTableHandle cloneWithLimit(long limit)
