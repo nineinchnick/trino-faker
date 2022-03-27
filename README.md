@@ -35,8 +35,16 @@ CREATE TABLE faker.default.customer (
   id UUID NOT NULL,
   name VARCHAR NOT NULL WITH (generator = '#{Name.first_name} #{Name.last_name}'), 
   address VARCHAR NOT NULL WITH (generator = '#{Address.fullAddress}'),
+  born_at DATE,
   age_years INTEGER
 );
+INSERT INTO production.public.customers
+SELECT *
+FROM faker.default.customers
+WHERE 1=1
+AND born_at BETWEEN CURRENT_DATE - INTERVAL '150' YEAR AND CURRENT_DATE
+AND age_years BETWEEN 0 AND 150
+LIMIT 100;
 ```
 
 See the Datafaker's documentation for more information about
@@ -68,7 +76,7 @@ To have more control over the format of the generated data, use the `generator` 
 * `#{Name.first_name} #{Name.first_name} #{Name.last_name}`
 * `#{number.number_between '1','10'}`
 
-Generator expressions cannot be used for non-character based columns.
+Generator expressions cannot be used for non-character based columns. To limit their data range, specify constraints in the `WHERE` clause.
 
 ## Number of generated rows
 
