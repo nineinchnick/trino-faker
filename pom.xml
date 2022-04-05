@@ -18,7 +18,7 @@
 
     <groupId>pl.net.was</groupId>
     <artifactId>trino-faker</artifactId>
-    <version>0.10-SNAPSHOT</version>
+    <version>0.11-SNAPSHOT</version>
     <packaging>trino-plugin</packaging>
 
     <scm>
@@ -54,7 +54,7 @@
         <dep.trino.version>375</dep.trino.version>
         <dep.airlift.version>215</dep.airlift.version>
         <dep.packaging.version>\${dep.airlift.version}</dep.packaging.version>
-        <dep.errorprone.version>2.11.0</dep.errorprone.version>
+        <dep.errorprone.version>2.12.0</dep.errorprone.version>
         <dep.jackson.version>2.13.2</dep.jackson.version>
         <dep.testng.version>7.5</dep.testng.version>
 
