@@ -29,7 +29,7 @@
     <parent>
         <groupId>io.airlift</groupId>
         <artifactId>airbase</artifactId>
-        <version>122</version>
+        <version>123</version>
     </parent>
 
     <licenses>
@@ -51,8 +51,8 @@
         <air.check.fail-checkstyle>true</air.check.fail-checkstyle>
         <air.check.skip-checkstyle>false</air.check.skip-checkstyle>
 
-        <dep.trino.version>374</dep.trino.version>
-        <dep.airlift.version>214</dep.airlift.version>
+        <dep.trino.version>375</dep.trino.version>
+        <dep.airlift.version>215</dep.airlift.version>
         <dep.packaging.version>\${dep.airlift.version}</dep.packaging.version>
         <dep.errorprone.version>2.11.0</dep.errorprone.version>
         <dep.jackson.version>2.13.2</dep.jackson.version>
@@ -72,6 +72,11 @@
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>io.airlift</groupId>
+                <artifactId>json</artifactId>
+                <version>${dep.airlift.version}</version>
+            </dependency>
             <dependency>
                 <groupId>javax.xml.bind</groupId>
                 <artifactId>jaxb-api</artifactId>
@@ -95,20 +100,8 @@
 
         <dependency>
             <groupId>io.airlift</groupId>
-            <artifactId>log</artifactId>
-            <version>${dep.airlift.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>io.airlift</groupId>
-            <artifactId>log-manager</artifactId>
-            <version>${dep.airlift.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>io.airlift</groupId>
             <artifactId>slice</artifactId>
-            <version>0.41</version>
+            <version>0.42</version>
             <scope>provided</scope>
         </dependency>
 
@@ -152,7 +145,7 @@
         <dependency>
             <groupId>net.datafaker</groupId>
             <artifactId>datafaker</artifactId>
-            <version>1.3.0-SNAPSHOT</version>
+            <version>1.3.0</version>
         </dependency>
 
         <!-- Trino SPI -->
@@ -184,6 +177,20 @@
         </dependency>
 
         <!-- for testing -->
+        <dependency>
+            <groupId>io.airlift</groupId>
+            <artifactId>log</artifactId>
+            <version>${dep.airlift.version}</version>
+            <scope>test-jar</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>io.airlift</groupId>
+            <artifactId>log-manager</artifactId>
+            <version>${dep.airlift.version}</version>
+            <scope>test-jar</scope>
+        </dependency>
+
         <dependency>
             <groupId>io.trino</groupId>
             <artifactId>trino-testing</artifactId>

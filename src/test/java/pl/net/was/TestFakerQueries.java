@@ -252,7 +252,6 @@ public class TestFakerQueries
         assertQuery(testQuery, "VALUES (true)");
     }
 
-
     @Test
     public void selectRange()
     {
