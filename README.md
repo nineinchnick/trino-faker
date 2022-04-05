@@ -23,12 +23,6 @@ Then use your favourite SQL client to connect to Trino running at http://localho
 
 Try creating a table that looks like an existing table in a real database and insert some random data back into it:
 ```sql
-CREATE TABLE faker.default.customers LIKE production.public.customers WITH (null_probability = 0.01);
-INSERT INTO production.public.customers SELECT * FROM faker.default.customers LIMIT 100;
-```
-
-To have more control over the format of the generated data:
-```sql
 SHOW CREATE TABLE production.public.customers;
 -- copy the output of the above query and add some properties:
 CREATE TABLE faker.default.customer (
