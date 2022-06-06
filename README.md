@@ -16,7 +16,7 @@ docker run \
   -d \
   --name trino-faker \
   -p 8080:8080 \
-  nineinchnick/trino-faker:0.11
+  nineinchnick/trino-faker:0.13
 ```
 
 Then use your favourite SQL client to connect to Trino running at http://localhost:8080
@@ -112,10 +112,10 @@ docker run \
   -p 8080:8080 \
   --name trino \
   -d \
-  trinodb/trino:376
+  trinodb/trino:384
 ```
 
 Connect to that server using:
 ```bash
-docker run -it --rm --link trino trinodb/trino:376 trino --server trino:8080 --catalog faker --schema default
+docker run -it --rm --link trino trinodb/trino:384 trino --server trino:8080 --catalog faker --schema default
 ```
