@@ -22,6 +22,19 @@ docker run \
 Then use your favourite SQL client to connect to Trino running at http://localhost:8080
 
 Try creating a table that looks like an existing table in a real database and insert some random data back into it:
+
+```sql
+CREATE TABLE faker.default.customer (LIKE production.public.customer EXCLUDING PROPERTIES);
+INSERT INTO production.public.customers
+SELECT *
+FROM faker.default.customers
+WHERE 1=1
+AND born_at BETWEEN CURRENT_DATE - INTERVAL '150' YEAR AND CURRENT_DATE
+AND age_years BETWEEN 0 AND 150
+LIMIT 100;
+```
+
+To generate more realisting data, choose specific generators by setting the `generator` property on columns:
 ```sql
 SHOW CREATE TABLE production.public.customers;
 -- copy the output of the above query and add some properties:
@@ -32,13 +45,6 @@ CREATE TABLE faker.default.customer (
   born_at DATE,
   age_years INTEGER
 );
-INSERT INTO production.public.customers
-SELECT *
-FROM faker.default.customers
-WHERE 1=1
-AND born_at BETWEEN CURRENT_DATE - INTERVAL '150' YEAR AND CURRENT_DATE
-AND age_years BETWEEN 0 AND 150
-LIMIT 100;
 ```
 
 See the Datafaker's documentation for more information about

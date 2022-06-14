@@ -40,6 +40,8 @@ jobs:
       - name: Save version number in env
         run: |
           echo "VERSION=$(grep 'project.rel.pl.net.was\\:trino-faker=' release.properties | cut -d'=' -f2)" >> $GITHUB_ENV
+      # TODO this clobbers the tag because it creates a new one skipping the commit pushed in the prev step
+      # replace it with a script...
       - uses: marvinpinto/action-automatic-releases@v1.2.1
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
