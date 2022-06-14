@@ -29,7 +29,7 @@
     <parent>
         <groupId>io.airlift</groupId>
         <artifactId>airbase</artifactId>
-        <version>125</version>
+        <version>127</version>
     </parent>
 
     <licenses>
@@ -51,8 +51,8 @@
         <air.check.fail-checkstyle>true</air.check.fail-checkstyle>
         <air.check.skip-checkstyle>false</air.check.skip-checkstyle>
 
-        <dep.trino.version>384</dep.trino.version>
-        <dep.airlift.version>215</dep.airlift.version>
+        <dep.trino.version>385</dep.trino.version>
+        <dep.airlift.version>217</dep.airlift.version>
         <dep.packaging.version>\${dep.airlift.version}</dep.packaging.version>
         <dep.errorprone.version>2.14.0</dep.errorprone.version>
         <dep.jackson.version>2.13.3</dep.jackson.version>
@@ -81,6 +81,17 @@
                 <groupId>javax.xml.bind</groupId>
                 <artifactId>jaxb-api</artifactId>
                 <version>2.3.1</version>
+            </dependency>
+            <dependency>
+                <groupId>net.java.dev.jna</groupId>
+                <artifactId>jna</artifactId>
+                <version>5.11.0</version>
+            </dependency>
+
+            <dependency>
+                <groupId>net.java.dev.jna</groupId>
+                <artifactId>jna-platform</artifactId>
+                <version>5.11.0</version>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
