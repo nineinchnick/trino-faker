@@ -49,6 +49,7 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -174,13 +175,14 @@ public class FakerMetadata
     }
 
     @Override
-    public Stream<TableColumnsMetadata> streamTableColumns(ConnectorSession session, SchemaTablePrefix prefix)
+    public Iterator<TableColumnsMetadata> streamTableColumns(ConnectorSession session, SchemaTablePrefix prefix)
     {
         return tables.values().stream()
                 .filter(table -> prefix.matches(table.getSchemaTableName()))
                 .map(table -> TableColumnsMetadata.forTable(
                         table.getSchemaTableName(),
-                        table.getMetadata().getColumns()));
+                        table.getMetadata().getColumns()))
+                .iterator();
     }
 
     @Override
