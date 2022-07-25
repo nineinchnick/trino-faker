@@ -49,7 +49,6 @@ public class FakerSplitManager
             ConnectorTransactionHandle transaction,
             ConnectorSession session,
             ConnectorTableHandle table,
-            ConnectorSplitManager.SplitSchedulingStrategy splitSchedulingStrategy,
             DynamicFilter dynamicFilter,
             Constraint constraint)
     {
