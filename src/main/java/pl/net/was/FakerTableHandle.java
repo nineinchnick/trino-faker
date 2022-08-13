@@ -22,18 +22,19 @@ import io.trino.spi.connector.SchemaTableName;
 import io.trino.spi.predicate.TupleDomain;
 
 import java.util.Objects;
+import java.util.Optional;
 
 public class FakerTableHandle
         implements ConnectorTableHandle, Cloneable
 {
-    private final long id;
+    private final Long id;
     private final SchemaTableName schemaTableName;
     private TupleDomain<ColumnHandle> constraint;
     private long limit;
 
     @JsonCreator
     public FakerTableHandle(
-            @JsonProperty("id") long id,
+            @JsonProperty("id") Long id,
             @JsonProperty("schemaTableName") SchemaTableName schemaTableName,
             @JsonProperty("constraint") TupleDomain<ColumnHandle> constraint,
             @JsonProperty("limit") long limit)
@@ -45,9 +46,9 @@ public class FakerTableHandle
     }
 
     @JsonProperty
-    public long getId()
+    public Optional<Long> getId()
     {
-        return id;
+        return Optional.ofNullable(id);
     }
 
     @JsonProperty("schemaTableName")
@@ -79,13 +80,15 @@ public class FakerTableHandle
         }
         FakerTableHandle that = (FakerTableHandle) o;
         return id == that.id &&
-                schemaTableName.equals(that.schemaTableName);
+                schemaTableName.equals(that.schemaTableName) &&
+                constraint.equals(that.constraint) &&
+                limit == that.limit;
     }
 
     @Override
     public int hashCode()
     {
-        return Objects.hash(id, schemaTableName);
+        return Objects.hash(id, schemaTableName, constraint, limit);
     }
 
     public String toString()

@@ -30,6 +30,7 @@ public class FakerColumnHandle
     private final Type type;
     private final double nullProbability;
     private final String generator;
+    private final Long step;
 
     @JsonCreator
     public FakerColumnHandle(
@@ -37,13 +38,15 @@ public class FakerColumnHandle
             @JsonProperty("name") String name,
             @JsonProperty("type") Type type,
             @JsonProperty("nullProbability") double nullProbability,
-            @JsonProperty("generator") String generator)
+            @JsonProperty("generator") String generator,
+            @JsonProperty("step") Long step)
     {
         this.columnIndex = columnIndex;
         this.name = name;
         this.type = type;
         this.nullProbability = nullProbability;
         this.generator = generator;
+        this.step = step;
     }
 
     @JsonProperty("columnIndex")
@@ -74,6 +77,12 @@ public class FakerColumnHandle
     public Optional<String> getGenerator()
     {
         return Optional.ofNullable(generator);
+    }
+
+    @JsonProperty("step")
+    public Optional<Long> getStep()
+    {
+        return Optional.ofNullable(step);
     }
 
     @Override
