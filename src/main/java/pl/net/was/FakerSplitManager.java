@@ -52,10 +52,11 @@ public class FakerSplitManager
             DynamicFilter dynamicFilter,
             Constraint constraint)
     {
+        FakerTableHandle fakerTable = (FakerTableHandle) table;
         List<FakerConnectorSplit> splits = nodeManager.getRequiredWorkerNodes().stream()
                 .flatMap(node -> Stream.generate(
-                                () -> new FakerConnectorSplit((FakerTableHandle) table, List.of(node.getHostAndPort())))
-                        .limit(config.getMinSplits()))
+                                () -> new FakerConnectorSplit(fakerTable, List.of(node.getHostAndPort())))
+                        .limit(fakerTable.getId().isPresent() ? config.getMinSplits() : 1))
                 .collect(toList());
 
         return new FixedSplitSource(splits);

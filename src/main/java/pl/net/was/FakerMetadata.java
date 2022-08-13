@@ -36,8 +36,12 @@ import io.trino.spi.connector.SchemaNotFoundException;
 import io.trino.spi.connector.SchemaTableName;
 import io.trino.spi.connector.SchemaTablePrefix;
 import io.trino.spi.connector.TableColumnsMetadata;
+import io.trino.spi.connector.TableFunctionApplicationResult;
 import io.trino.spi.predicate.Domain;
+import io.trino.spi.predicate.Range;
 import io.trino.spi.predicate.TupleDomain;
+import io.trino.spi.predicate.ValueSet;
+import io.trino.spi.ptf.ConnectorTableFunctionHandle;
 import io.trino.spi.security.TrinoPrincipal;
 import io.trino.spi.statistics.ComputedStatistics;
 import io.trino.spi.type.CharType;
@@ -64,6 +68,7 @@ import static io.trino.spi.StandardErrorCode.ALREADY_EXISTS;
 import static io.trino.spi.StandardErrorCode.INVALID_COLUMN_PROPERTY;
 import static io.trino.spi.StandardErrorCode.NOT_FOUND;
 import static io.trino.spi.connector.RetryMode.NO_RETRIES;
+import static io.trino.spi.type.BigintType.BIGINT;
 import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toList;
@@ -139,7 +144,14 @@ public class FakerMetadata
             ConnectorTableHandle connectorTableHandle)
     {
         FakerTableHandle tableHandle = Types.checkType(connectorTableHandle, FakerTableHandle.class, "tableHandle");
-        return tables.get(tableHandle.getId()).getMetadata();
+        if (tableHandle.getId().isEmpty()) {
+            return new ConnectorTableMetadata(
+                    new SchemaTableName(SCHEMA_NAME, "seq"),
+                    List.of(new ColumnMetadata("seq", BIGINT)),
+                    Map.of(),
+                    Optional.empty());
+        }
+        return tables.get(tableHandle.getId().get()).getMetadata();
     }
 
     @Override
@@ -157,7 +169,7 @@ public class FakerMetadata
             ConnectorTableHandle connectorTableHandle)
     {
         FakerTableHandle tableHandle = Types.checkType(connectorTableHandle, FakerTableHandle.class, "tableHandle");
-        return tables.get(tableHandle.getId())
+        return tables.get(tableHandle.getId().get())
                 .getColumns().stream()
                 .collect(toImmutableMap(ColumnInfo::getName, ColumnInfo::getHandle));
     }
@@ -169,7 +181,10 @@ public class FakerMetadata
             ColumnHandle columnHandle)
     {
         FakerTableHandle tableHandle = Types.checkType(connectorTableHandle, FakerTableHandle.class, "tableHandle");
-        return tables.get(tableHandle.getId())
+        if (tableHandle.getId().isEmpty()) {
+            return new ColumnMetadata("seq", BIGINT);
+        }
+        return tables.get(tableHandle.getId().get())
                 .getColumn(columnHandle)
                 .getMetadata();
     }
@@ -189,7 +204,7 @@ public class FakerMetadata
     public synchronized void dropTable(ConnectorSession session, ConnectorTableHandle tableHandle)
     {
         FakerTableHandle handle = (FakerTableHandle) tableHandle;
-        TableInfo info = tables.remove(handle.getId());
+        TableInfo info = tables.remove(handle.getId().get());
         if (info != null) {
             tableIds.remove(info.getSchemaTableName());
         }
@@ -202,7 +217,7 @@ public class FakerMetadata
         checkTableNotExists(newTableName);
 
         FakerTableHandle handle = (FakerTableHandle) tableHandle;
-        long tableId = handle.getId();
+        long tableId = handle.getId().get();
 
         TableInfo oldInfo = tables.get(tableId);
         tables.put(tableId, new TableInfo(
@@ -221,7 +236,7 @@ public class FakerMetadata
     public void setTableProperties(ConnectorSession session, ConnectorTableHandle tableHandle, Map<String, Optional<Object>> properties)
     {
         FakerTableHandle handle = (FakerTableHandle) tableHandle;
-        long tableId = handle.getId();
+        long tableId = handle.getId().get();
 
         TableInfo oldInfo = tables.get(tableId);
         Map<String, Object> newProperties = Stream.concat(
@@ -237,7 +252,7 @@ public class FakerMetadata
     public void setTableComment(ConnectorSession session, ConnectorTableHandle tableHandle, Optional<String> comment)
     {
         FakerTableHandle handle = (FakerTableHandle) tableHandle;
-        long tableId = handle.getId();
+        long tableId = handle.getId().get();
 
         TableInfo oldInfo = tables.get(tableId);
         tables.put(tableId, oldInfo.cloneWithComment(comment));
@@ -247,7 +262,7 @@ public class FakerMetadata
     public void setColumnComment(ConnectorSession session, ConnectorTableHandle tableHandle, ColumnHandle column, Optional<String> comment)
     {
         FakerTableHandle handle = (FakerTableHandle) tableHandle;
-        long tableId = handle.getId();
+        long tableId = handle.getId().get();
 
         TableInfo oldInfo = tables.get(tableId);
         List<ColumnInfo> columns = oldInfo.getColumns().stream()
@@ -290,7 +305,13 @@ public class FakerMetadata
                 nullProbability = (double) column.getProperties().getOrDefault(ColumnInfo.NULL_PROBABILITY_PROPERTY, tableNullProbability);
             }
             columns.add(new ColumnInfo(
-                    new FakerColumnHandle(i, column.getName(), column.getType(), nullProbability, (String) column.getProperties().get(ColumnInfo.GENERATOR_PROPERTY)),
+                    new FakerColumnHandle(
+                            i,
+                            column.getName(),
+                            column.getType(),
+                            nullProbability,
+                            (String) column.getProperties().get(ColumnInfo.GENERATOR_PROPERTY),
+                            null),
                     column));
         }
 
@@ -423,5 +444,25 @@ public class FakerMetadata
                 fakerTable.cloneWithConstraint(currentConstraint),
                 TupleDomain.all(),
                 true));
+    }
+
+    @Override
+    public Optional<TableFunctionApplicationResult<ConnectorTableHandle>> applyTableFunction(ConnectorSession session, ConnectorTableFunctionHandle handle)
+    {
+        if (!(handle instanceof SequenceTableHandle generatorHandle)) {
+            return Optional.empty();
+        }
+        // TODO adjust limit and step to `config.getMinSplits()`
+        long limit = 1 + (generatorHandle.getStop() - generatorHandle.getStart()) / generatorHandle.getStep();
+        FakerColumnHandle column = new FakerColumnHandle(0, "seq", BIGINT, 0, "", generatorHandle.getStep());
+        TupleDomain<ColumnHandle> constraint = TupleDomain.withColumnDomains(Map.of(
+                column, Domain.create(ValueSet.ofRanges(Range.range(
+                        BIGINT,
+                        generatorHandle.getStart(),
+                        true,
+                        generatorHandle.getStop(),
+                        true)), false)));
+        FakerTableHandle tableHandle = new FakerTableHandle(null, new SchemaTableName(SCHEMA_NAME, "generator"), constraint, limit);
+        return Optional.of(new TableFunctionApplicationResult<>(tableHandle, List.of(column)));
     }
 }

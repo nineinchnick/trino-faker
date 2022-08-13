@@ -53,6 +53,7 @@ import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import static io.trino.spi.StandardErrorCode.INVALID_ROW_FILTER;
@@ -138,7 +139,17 @@ public class FakerRecordSetProvider
                 .collect(toList());
 
         FakerTableHandle fakerTable = (FakerTableHandle) table;
-        Stream<List<Object>> stream = Stream.generate(() -> generateRow(handles, fakerTable.getConstraint())).limit(fakerTable.getLimit());
+        Stream<List<Object>> stream = Stream.generate(new Supplier<List<Object>>()
+                {
+                    private long rowNumber;
+
+                    @Override
+                    public List<Object> get()
+                    {
+                        return generateRow(rowNumber++, handles, fakerTable.getConstraint());
+                    }
+                })
+                .limit(fakerTable.getLimit());
         Iterable<List<Object>> rows = stream::iterator;
 
         List<Type> mappedTypes = handles
@@ -148,13 +159,23 @@ public class FakerRecordSetProvider
         return new InMemoryRecordSet(mappedTypes, rows);
     }
 
-    private List<Object> generateRow(List<FakerColumnHandle> handles, TupleDomain<ColumnHandle> summary)
+    private List<Object> generateRow(long rowNumber, List<FakerColumnHandle> handles, TupleDomain<ColumnHandle> summary)
     {
-        return handles.stream().map(handle -> generateConstrainedValue(handle, summary.getDomains().get().getOrDefault(handle, Domain.all(handle.getType())))).collect(toList());
+        return handles.stream().map(handle -> generateConstrainedValue(
+                        rowNumber,
+                        handle,
+                        summary.getDomains().get().getOrDefault(handle, Domain.all(handle.getType()))))
+                .collect(toList());
     }
 
-    private Object generateConstrainedValue(FakerColumnHandle handle, Domain domain)
+    private Object generateConstrainedValue(long rowNumber, FakerColumnHandle handle, Domain domain)
     {
+        if (handle.getStep().isPresent()) {
+            // TODO validate null probability, type and constraint
+            Long step = handle.getStep().get();
+            long start = (long) domain.getValues().getRanges().getSpan().getLowValue().get();
+            return start + step * rowNumber;
+        }
         if (domain.isNullableSingleValue()) {
             return domain.getNullableSingleValue();
         }
@@ -237,8 +258,7 @@ public class FakerRecordSetProvider
         if (type instanceof TimestampWithTimeZoneType) {
             return generateTimestampWithTimeZone(range, (TimestampWithTimeZoneType) type);
         }
-        if (type instanceof TimeType) {
-            TimeType timeType = (TimeType) type;
+        if (type instanceof TimeType timeType) {
             return generateLongDefaults(range, POWERS_OF_TEN[12 - timeType.getPrecision()], 0, PICOSECONDS_PER_DAY);
         }
         if (type instanceof TimeWithTimeZoneType) {
@@ -250,20 +270,18 @@ public class FakerRecordSetProvider
             }
             return faker.lorem().sentence(3 + random.nextInt(38)).getBytes();
         }
-        if (type instanceof VarcharType) {
+        if (type instanceof VarcharType varcharType) {
             if (!range.isAll()) {
                 throw new TrinoException(INVALID_ROW_FILTER, "Predicates for varchar columns are not supported");
             }
-            VarcharType varcharType = (VarcharType) type;
             return varcharType.getLength()
                     .map(length -> faker.lorem().maxLengthSentence(random.nextInt(length)))
                     .orElse(faker.lorem().sentence(3 + random.nextInt(38)));
         }
-        if (type instanceof CharType) {
+        if (type instanceof CharType charType) {
             if (!range.isAll()) {
                 throw new TrinoException(INVALID_ROW_FILTER, "Predicates for char columns are not supported");
             }
-            CharType charType = (CharType) type;
             return faker.lorem().maxLengthSentence(charType.getLength());
         }
         // not supported: ROW, ARRAY, MAP, JSON
