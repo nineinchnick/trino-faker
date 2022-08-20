@@ -53,9 +53,9 @@ public class FakerSplitManager
             Constraint constraint)
     {
         FakerTableHandle fakerTable = (FakerTableHandle) table;
-        List<FakerConnectorSplit> splits = nodeManager.getRequiredWorkerNodes().stream()
+        List<FakerSplit> splits = nodeManager.getRequiredWorkerNodes().stream()
                 .flatMap(node -> Stream.generate(
-                                () -> new FakerConnectorSplit(fakerTable, List.of(node.getHostAndPort())))
+                                () -> new FakerSplit(fakerTable, List.of(node.getHostAndPort())))
                         .limit(fakerTable.getId().isPresent() ? config.getMinSplits() : 1))
                 .collect(toList());
 

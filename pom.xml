@@ -193,6 +193,14 @@
             <scope>provided</scope>
         </dependency>
 
+        <!-- for benchmark -->
+        <dependency>
+            <groupId>io.trino</groupId>
+            <artifactId>trino-benchmark</artifactId>
+            <version>${dep.trino.version}</version>
+            <scope>test</scope>
+        </dependency>
+
         <!-- for testing -->
         <dependency>
             <groupId>io.airlift</groupId>

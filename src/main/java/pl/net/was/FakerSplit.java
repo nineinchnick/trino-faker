@@ -21,14 +21,14 @@ import io.trino.spi.connector.ConnectorSplit;
 
 import java.util.List;
 
-public class FakerConnectorSplit
+public class FakerSplit
         implements ConnectorSplit
 {
     private final FakerTableHandle tableHandle;
     private final List<HostAddress> addresses;
 
     @JsonCreator
-    public FakerConnectorSplit(
+    public FakerSplit(
             @JsonProperty("tableHandle") FakerTableHandle tableHandle,
             @JsonProperty("addresses") List<HostAddress> addresses)
     {
