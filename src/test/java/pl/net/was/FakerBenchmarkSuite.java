@@ -26,7 +26,9 @@ import io.trino.benchmark.OdsBenchmarkResultWriter;
 import io.trino.benchmark.SimpleLineBenchmarkResultWriter;
 import io.trino.testing.LocalQueryRunner;
 import pl.net.was.benchmark.BaselineRandomPrimitiveType;
+import pl.net.was.benchmark.BaselineSequence;
 import pl.net.was.benchmark.RandomPrimitiveType;
+import pl.net.was.benchmark.TableFuncSequence;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -55,7 +57,9 @@ public class FakerBenchmarkSuite
     {
         return ImmutableList.of(
                 new BaselineRandomPrimitiveType(localQueryRunner),
-                new RandomPrimitiveType(localQueryRunner));
+                new RandomPrimitiveType(localQueryRunner),
+                new BaselineSequence(localQueryRunner),
+                new TableFuncSequence(localQueryRunner));
     }
 
     public void runAllBenchmarks()
