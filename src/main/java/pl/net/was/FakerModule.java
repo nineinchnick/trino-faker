@@ -45,6 +45,7 @@ public class FakerModule
         binder.bind(FakerMetadata.class).in(Scopes.SINGLETON);
         binder.bind(FakerSplitManager.class).in(Scopes.SINGLETON);
         binder.bind(FakerRecordSetProvider.class).in(Scopes.SINGLETON);
+        binder.bind(FakerPageSinkProvider.class).in(Scopes.SINGLETON);
         configBinder(binder).bindConfig(FakerConfig.class);
     }
 }

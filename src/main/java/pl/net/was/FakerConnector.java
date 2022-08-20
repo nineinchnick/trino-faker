@@ -19,6 +19,7 @@ import com.google.common.collect.ImmutableSet;
 import io.trino.spi.connector.Connector;
 import io.trino.spi.connector.ConnectorCapabilities;
 import io.trino.spi.connector.ConnectorMetadata;
+import io.trino.spi.connector.ConnectorPageSinkProvider;
 import io.trino.spi.connector.ConnectorRecordSetProvider;
 import io.trino.spi.connector.ConnectorSession;
 import io.trino.spi.connector.ConnectorSplitManager;
@@ -45,6 +46,7 @@ public class FakerConnector
     private final FakerMetadata metadata;
     private final FakerSplitManager splitManager;
     private final FakerRecordSetProvider recordSetProvider;
+    private final FakerPageSinkProvider pageSinkProvider;
 
     public static final String NULL_PROBABILITY_PROPERTY = "null_probability";
     public static final String DEFAULT_LIMIT_PROPERTY = "default_limit";
@@ -53,11 +55,13 @@ public class FakerConnector
     public FakerConnector(
             FakerMetadata metadata,
             FakerSplitManager splitManager,
-            FakerRecordSetProvider recordSetProvider)
+            FakerRecordSetProvider recordSetProvider,
+            FakerPageSinkProvider pageSinkProvider)
     {
         this.metadata = requireNonNull(metadata, "metadata is null");
         this.splitManager = requireNonNull(splitManager, "splitManager is null");
         this.recordSetProvider = requireNonNull(recordSetProvider, "recordSetProvider is null");
+        this.pageSinkProvider = requireNonNull(pageSinkProvider, "pageSinkProvider is null");
     }
 
     @Override
@@ -82,6 +86,12 @@ public class FakerConnector
     public ConnectorRecordSetProvider getRecordSetProvider()
     {
         return recordSetProvider;
+    }
+
+    @Override
+    public ConnectorPageSinkProvider getPageSinkProvider()
+    {
+        return pageSinkProvider;
     }
 
     @Override

@@ -25,7 +25,7 @@ public class FakerConfig
 {
     private double nullProbability = 0.5;
     private long defaultLimit = 1000L;
-    private int minSplits = 4;
+    private int minSplits = 1;
 
     @NotNull
     @Max(1)
