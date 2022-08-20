@@ -20,7 +20,7 @@ import io.trino.spi.connector.Connector;
 import io.trino.spi.connector.ConnectorCapabilities;
 import io.trino.spi.connector.ConnectorMetadata;
 import io.trino.spi.connector.ConnectorPageSinkProvider;
-import io.trino.spi.connector.ConnectorRecordSetProvider;
+import io.trino.spi.connector.ConnectorPageSourceProvider;
 import io.trino.spi.connector.ConnectorSession;
 import io.trino.spi.connector.ConnectorSplitManager;
 import io.trino.spi.connector.ConnectorTransactionHandle;
@@ -45,7 +45,7 @@ public class FakerConnector
 {
     private final FakerMetadata metadata;
     private final FakerSplitManager splitManager;
-    private final FakerRecordSetProvider recordSetProvider;
+    private final FakerPageSourceProvider pageSourceProvider;
     private final FakerPageSinkProvider pageSinkProvider;
 
     public static final String NULL_PROBABILITY_PROPERTY = "null_probability";
@@ -55,12 +55,12 @@ public class FakerConnector
     public FakerConnector(
             FakerMetadata metadata,
             FakerSplitManager splitManager,
-            FakerRecordSetProvider recordSetProvider,
+            FakerPageSourceProvider pageSourceProvider,
             FakerPageSinkProvider pageSinkProvider)
     {
         this.metadata = requireNonNull(metadata, "metadata is null");
         this.splitManager = requireNonNull(splitManager, "splitManager is null");
-        this.recordSetProvider = requireNonNull(recordSetProvider, "recordSetProvider is null");
+        this.pageSourceProvider = requireNonNull(pageSourceProvider, "pageSourceProvider is null");
         this.pageSinkProvider = requireNonNull(pageSinkProvider, "pageSinkProvider is null");
     }
 
@@ -83,9 +83,9 @@ public class FakerConnector
     }
 
     @Override
-    public ConnectorRecordSetProvider getRecordSetProvider()
+    public ConnectorPageSourceProvider getPageSourceProvider()
     {
-        return recordSetProvider;
+        return pageSourceProvider;
     }
 
     @Override
@@ -145,7 +145,7 @@ public class FakerConnector
                         ColumnInfo.GENERATOR_PROPERTY,
                         "Name of the Faker library generator used to generate data for this column",
                         null,
-                        recordSetProvider::validateGenerator,
+                        pageSourceProvider::validateGenerator,
                         false));
     }
 
