@@ -5,7 +5,7 @@ Trino Connector
 
 This is a [Trino](http://trino.io/) connector that generates random data. It has two goals:
 1. Be easy to use.
-2. Support most Trino's data types.
+2. Support most of Trino's data types.
 3. Generate random data that looks as real as possible and is correct, that is it matches all the constraints.
 
 # Quick Start
@@ -19,7 +19,7 @@ docker run \
   nineinchnick/trino-faker:0.13
 ```
 
-Then use your favourite SQL client to connect to Trino running at http://localhost:8080
+Then use your favorite SQL client to connect to Trino running at http://localhost:8080
 
 Try creating a table that looks like an existing table in a real database and insert some random data back into it:
 
@@ -34,7 +34,7 @@ AND age_years BETWEEN 0 AND 150
 LIMIT 100;
 ```
 
-To generate more realisting data, choose specific generators by setting the `generator` property on columns:
+To generate more realistic data, choose specific generators by setting the `generator` property on columns:
 ```sql
 SHOW CREATE TABLE production.public.customers;
 -- copy the output of the above query and add some properties:
@@ -53,7 +53,7 @@ and [available providers](https://www.datafaker.net/documentation/providers/).
 
 # Usage
 
-Download one of the ZIP packages, unzip it and copy the `trino-faker-0.11` directory to the plugin directory on every node in your Trino cluster.
+Download one of the ZIP packages, unzip it, and copy the `trino-faker-0.11` directory to the plugin directory on every node in your Trino cluster.
 Create a `faker.properties` file in your Trino catalog directory and set all the required properties.
 
 ```
@@ -64,9 +64,9 @@ After reloading Trino, you should be able to connect to the `faker` catalog.
 
 ## Generators
 
-Particular data generator is selected based on the column type.
+A particular data generator is selected based on the column type.
 
-For `CHAR`, `VARCHAR` and `VARBINARY` column, the default generator uses the `Lorem ipsum` placeholder text.
+For `CHAR`, `VARCHAR`, and `VARBINARY` column, the default generator uses the `Lorem ipsum` placeholder text.
 Unbounded columns will have a random sentence with 3 to 40 words.
 
 To have more control over the format of the generated data, use the `generator` column property. Some examples of valid generator expressions:
@@ -76,17 +76,17 @@ To have more control over the format of the generated data, use the `generator` 
 * `#{Name.first_name} #{Name.first_name} #{Name.last_name}`
 * `#{number.number_between '1','10'}`
 
-Generator expressions cannot be used for non-character based columns. To limit their data range, specify constraints in the `WHERE` clause.
+Generator expressions cannot be used for non-character-based columns. To limit their data range, specify constraints in the `WHERE` clause.
 
 ## Number of generated rows
 
 To control how many rows are generated for a table, use the `LIMIT` clause in the query.
-A default limit can be set using the `default_limit` table or schema property or in the connector configuration file.
+A default limit can be set using the `default_limit` table, or schema property or in the connector configuration file.
 
 ## Null values
 
 For columns without the `NOT NULL` constraint, null values will be generated using the default probability of 50% (0.5).
-It can be modified using the `null_probability` property set for a column, table or schema.
+It can be modified using the `null_probability` property set for a column, table, or schema.
 The default value of 0.5 can be also modified in the connector configuration file.
 
 # Build
@@ -101,7 +101,7 @@ Creates a deployable jar file
 mvn clean compile package
 ```
 
-Copy jar files in target directory to use git connector in your Trino cluster.
+Copy jar files in the target directory to use the connector in your Trino cluster.
 ```
 cp -p target/*.jar ${PLUGIN_DIRECTORY}/faker/
 ```
