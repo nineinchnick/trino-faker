@@ -18,12 +18,12 @@
 
     <groupId>pl.net.was</groupId>
     <artifactId>trino-faker</artifactId>
-    <version>0.22-SNAPSHOT</version>
+    <version>0.22</version>
     <packaging>trino-plugin</packaging>
 
     <scm>
         <developerConnection>scm:git:https://github.com/nineinchnick/trino-faker.git</developerConnection>
-        <tag>HEAD</tag>
+        <tag>v0.22</tag>
     </scm>
 
     <parent>
