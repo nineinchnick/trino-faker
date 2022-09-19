@@ -29,7 +29,7 @@
     <parent>
         <groupId>io.airlift</groupId>
         <artifactId>airbase</artifactId>
-        <version>128</version>
+        <version>129</version>
     </parent>
 
     <licenses>
@@ -52,11 +52,11 @@
         <air.check.fail-checkstyle>true</air.check.fail-checkstyle>
         <air.check.skip-checkstyle>false</air.check.skip-checkstyle>
 
-        <dep.trino.version>393</dep.trino.version>
+        <dep.trino.version>396</dep.trino.version>
         <dep.airlift.version>218</dep.airlift.version>
         <dep.packaging.version>\${dep.airlift.version}</dep.packaging.version>
         <dep.errorprone.version>2.15.0</dep.errorprone.version>
-        <dep.jackson.version>2.13.3</dep.jackson.version>
+        <dep.jackson.version>2.13.4</dep.jackson.version>
         <dep.testng.version>7.6.1</dep.testng.version>
 
         <air.javadoc.lint>-missing</air.javadoc.lint>
@@ -70,37 +70,6 @@
             <url>https://maven.pkg.github.com/nineinchnick/trino-faker</url>
         </repository>
     </distributionManagement>
-
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>io.airlift</groupId>
-                <artifactId>json</artifactId>
-                <version>${dep.airlift.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>javax.xml.bind</groupId>
-                <artifactId>jaxb-api</artifactId>
-                <version>2.3.1</version>
-            </dependency>
-            <dependency>
-                <groupId>net.java.dev.jna</groupId>
-                <artifactId>jna</artifactId>
-                <version>5.12.1</version>
-            </dependency>
-
-            <dependency>
-                <groupId>net.java.dev.jna</groupId>
-                <artifactId>jna-platform</artifactId>
-                <version>5.12.1</version>
-            </dependency>
-            <dependency>
-                <groupId>org.slf4j</groupId>
-                <artifactId>slf4j-api</artifactId>
-                <version>1.7.36</version>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
 
     <dependencies>
         <dependency>
@@ -149,7 +118,7 @@
         <dependency>
             <groupId>joda-time</groupId>
             <artifactId>joda-time</artifactId>
-            <version>2.11.0</version>
+            <version>2.11.1</version>
             <scope>runtime</scope>
         </dependency>
 
@@ -162,7 +131,7 @@
         <dependency>
             <groupId>net.datafaker</groupId>
             <artifactId>datafaker</artifactId>
-            <version>1.5.0</version>
+            <version>1.6.0</version>
         </dependency>
 
         <!-- Trino SPI -->
