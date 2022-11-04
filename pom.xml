@@ -29,7 +29,7 @@
     <parent>
         <groupId>io.airlift</groupId>
         <artifactId>airbase</artifactId>
-        <version>129</version>
+        <version>130</version>
     </parent>
 
     <licenses>
@@ -52,12 +52,13 @@
         <air.check.fail-checkstyle>true</air.check.fail-checkstyle>
         <air.check.skip-checkstyle>false</air.check.skip-checkstyle>
 
-        <dep.trino.version>396</dep.trino.version>
-        <dep.airlift.version>218</dep.airlift.version>
+        <dep.trino.version>402</dep.trino.version>
+        <dep.airlift.version>219</dep.airlift.version>
         <dep.packaging.version>\${dep.airlift.version}</dep.packaging.version>
-        <dep.errorprone.version>2.15.0</dep.errorprone.version>
+        <dep.errorprone.version>2.16</dep.errorprone.version>
         <dep.jackson.version>2.13.4</dep.jackson.version>
         <dep.testng.version>7.6.1</dep.testng.version>
+        <dep.joda.version>2.12.1</dep.joda.version>
 
         <air.javadoc.lint>-missing</air.javadoc.lint>
         <project.scm.id>github</project.scm.id>
@@ -70,6 +71,21 @@
             <url>https://maven.pkg.github.com/nineinchnick/trino-faker</url>
         </repository>
     </distributionManagement>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>io.airlift</groupId>
+                <artifactId>json</artifactId>
+                <version>219</version>
+            </dependency>
+            <dependency>
+                <groupId>io.airlift</groupId>
+                <artifactId>units</artifactId>
+                <version>1.8</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <dependencies>
         <dependency>
@@ -87,7 +103,7 @@
         <dependency>
             <groupId>io.airlift</groupId>
             <artifactId>slice</artifactId>
-            <version>0.42</version>
+            <version>0.44</version>
             <scope>provided</scope>
         </dependency>
 
@@ -112,13 +128,6 @@
             <groupId>com.google.errorprone</groupId>
             <artifactId>error_prone_annotations</artifactId>
             <version>${dep.errorprone.version}</version>
-            <scope>runtime</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>joda-time</groupId>
-            <artifactId>joda-time</artifactId>
-            <version>2.11.1</version>
             <scope>runtime</scope>
         </dependency>
 
@@ -151,7 +160,7 @@
         <dependency>
             <groupId>org.openjdk.jol</groupId>
             <artifactId>jol-core</artifactId>
-            <version>0.2</version>
+            <version>0.16</version>
             <scope>provided</scope>
         </dependency>
 
@@ -223,14 +232,13 @@
         <dependency>
             <groupId>io.airlift</groupId>
             <artifactId>units</artifactId>
-            <version>1.6</version>
             <scope>runtime</scope>
         </dependency>
 
         <dependency>
             <groupId>org.codehaus.plexus</groupId>
             <artifactId>plexus-utils</artifactId>
-            <version>3.4.2</version>
+            <version>3.5.0</version>
             <scope>test</scope>
         </dependency>
 
