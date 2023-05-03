@@ -15,7 +15,6 @@
 package pl.net.was;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 import io.trino.spi.connector.Connector;
 import io.trino.spi.connector.ConnectorCapabilities;
 import io.trino.spi.connector.ConnectorMetadata;
@@ -24,7 +23,6 @@ import io.trino.spi.connector.ConnectorPageSourceProvider;
 import io.trino.spi.connector.ConnectorSession;
 import io.trino.spi.connector.ConnectorSplitManager;
 import io.trino.spi.connector.ConnectorTransactionHandle;
-import io.trino.spi.ptf.ConnectorTableFunction;
 import io.trino.spi.session.PropertyMetadata;
 import io.trino.spi.transaction.IsolationLevel;
 
@@ -147,11 +145,5 @@ public class FakerConnector
                         null,
                         pageSourceProvider::validateGenerator,
                         false));
-    }
-
-    @Override
-    public Set<ConnectorTableFunction> getTableFunctions()
-    {
-        return ImmutableSet.of(new SequenceFunction());
     }
 }

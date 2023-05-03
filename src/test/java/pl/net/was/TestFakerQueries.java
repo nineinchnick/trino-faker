@@ -599,12 +599,4 @@ public class TestFakerQueries
 
         assertUpdate("DROP TABLE faker.default.all_types_range");
     }
-
-    @Test
-    public void selectSeq()
-    {
-        @Language("SQL")
-        String testQuery = "SELECT seq FROM TABLE(faker.default.sequence(start => 10, stop => 20, step => 3))";
-        assertQuery(testQuery, "VALUES (10), (13), (16), (19)");
-    }
 }
