@@ -15,6 +15,7 @@
 package pl.net.was;
 
 import com.google.inject.Binder;
+import com.google.inject.Inject;
 import com.google.inject.Module;
 import com.google.inject.Scopes;
 import io.trino.spi.NodeManager;
@@ -29,6 +30,7 @@ public class FakerModule
     private final NodeManager nodeManager;
     private final TypeManager typeManager;
 
+    @Inject
     public FakerModule(NodeManager nodeManager, TypeManager typeManager)
     {
         this.nodeManager = requireNonNull(nodeManager, "nodeManager is null");
