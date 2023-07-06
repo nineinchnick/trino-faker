@@ -46,9 +46,8 @@ import io.trino.spi.type.TimestampWithTimeZoneType;
 import io.trino.spi.type.Type;
 import io.trino.spi.type.VarbinaryType;
 import io.trino.spi.type.VarcharType;
+import jakarta.inject.Inject;
 import net.datafaker.Faker;
-
-import javax.inject.Inject;
 
 import java.math.BigInteger;
 import java.net.Inet4Address;

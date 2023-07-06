@@ -18,7 +18,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import io.airlift.slice.Slice;
 import io.trino.spi.TrinoException;
-import io.trino.spi.connector.CatalogSchemaName;
 import io.trino.spi.connector.ColumnHandle;
 import io.trino.spi.connector.ColumnMetadata;
 import io.trino.spi.connector.ConnectorMetadata;
@@ -43,8 +42,7 @@ import io.trino.spi.statistics.ComputedStatistics;
 import io.trino.spi.type.CharType;
 import io.trino.spi.type.VarbinaryType;
 import io.trino.spi.type.VarcharType;
-
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -355,10 +353,10 @@ public class FakerMetadata
     }
 
     @Override
-    public Map<String, Object> getSchemaProperties(ConnectorSession session, CatalogSchemaName schemaName)
+    public Map<String, Object> getSchemaProperties(ConnectorSession session, String schemaName)
     {
         Optional<SchemaInfo> schema = schemas.stream()
-                .filter(s -> s.getName().equals(schemaName.getSchemaName()))
+                .filter(s -> s.getName().equals(schemaName))
                 .findAny();
         if (schema.isEmpty()) {
             throw new TrinoException(NOT_FOUND, format("Schema [%s] does not exist", schemaName));
