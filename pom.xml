@@ -59,6 +59,7 @@
         <dep.jackson.version>2.15.2</dep.jackson.version>
         <dep.testng.version>7.8.0</dep.testng.version>
         <dep.joda.version>2.12.5</dep.joda.version>
+        <dep.guava.version>31.1.2-jre</dep.guava.version>
         <dep.opentelemetry.version>1.29.0</dep.opentelemetry.version>
         <dep.opentelemetry-instrumentation.version>1.29.0</dep.opentelemetry-instrumentation.version>
 
