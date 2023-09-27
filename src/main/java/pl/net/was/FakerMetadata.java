@@ -102,7 +102,7 @@ public class FakerMetadata
     }
 
     @Override
-    public synchronized void dropSchema(ConnectorSession session, String schemaName)
+    public synchronized void dropSchema(ConnectorSession session, String schemaName, boolean cascade)
     {
         verify(schemas.remove(getSchema(schemaName)));
     }
