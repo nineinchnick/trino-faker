@@ -17,7 +17,7 @@ package pl.net.was;
 import io.trino.testing.AbstractTestQueryFramework;
 import io.trino.testing.QueryRunner;
 import org.intellij.lang.annotations.Language;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 public class TestFakerQueries
         extends AbstractTestQueryFramework
