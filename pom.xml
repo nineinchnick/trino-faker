@@ -10,7 +10,7 @@
 
     <groupId>pl.net.was</groupId>
     <artifactId>trino-faker</artifactId>
-    <version>0.48-SNAPSHOT</version>
+    <version>0.48</version>
     <packaging>trino-plugin</packaging>
 
     <licenses>
@@ -23,7 +23,7 @@
 
     <scm>
         <developerConnection>scm:git:https://github.com/nineinchnick/trino-faker.git</developerConnection>
-        <tag>HEAD</tag>
+        <tag>v0.48</tag>
     </scm>
 
     <distributionManagement>
