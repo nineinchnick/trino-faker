@@ -41,7 +41,7 @@ public class FakerQueryRunner
         QueryRunner queryRunner = DistributedQueryRunner.builder(defaultSession)
                 .setExtraProperties(Map.of(
                         "http-server.http.port", requireNonNullElse(System.getenv("TRINO_PORT"), "8080")))
-                .setNodeCount(1)
+                .setWorkerCount(0)
                 .build();
         queryRunner.installPlugin(new FakerPlugin());
 
