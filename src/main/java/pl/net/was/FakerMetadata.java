@@ -17,6 +17,7 @@ package pl.net.was;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import io.airlift.slice.Slice;
+import io.trino.spi.StandardErrorCode;
 import io.trino.spi.TrinoException;
 import io.trino.spi.connector.ColumnHandle;
 import io.trino.spi.connector.ColumnMetadata;
@@ -27,6 +28,7 @@ import io.trino.spi.connector.ConnectorSession;
 import io.trino.spi.connector.ConnectorTableHandle;
 import io.trino.spi.connector.ConnectorTableLayout;
 import io.trino.spi.connector.ConnectorTableMetadata;
+import io.trino.spi.connector.ConnectorTableVersion;
 import io.trino.spi.connector.Constraint;
 import io.trino.spi.connector.ConstraintApplicationResult;
 import io.trino.spi.connector.LimitApplicationResult;
@@ -119,17 +121,20 @@ public class FakerMetadata
     }
 
     @Override
-    public ConnectorTableHandle getTableHandle(ConnectorSession connectorSession, SchemaTableName schemaTableName)
+    public ConnectorTableHandle getTableHandle(ConnectorSession session, SchemaTableName tableName, Optional<ConnectorTableVersion> startVersion, Optional<ConnectorTableVersion> endVersion)
     {
-        SchemaInfo schema = getSchema(schemaTableName.getSchemaName());
-        Long id = tableIds.get(schemaTableName);
+        if (startVersion.isPresent() || endVersion.isPresent()) {
+            throw new TrinoException(StandardErrorCode.NOT_SUPPORTED, "This connector does not support versioned tables");
+        }
+        SchemaInfo schema = getSchema(tableName.getSchemaName());
+        Long id = tableIds.get(tableName);
         if (id == null) {
             return null;
         }
         long schemaLimit = (long) schema.getProperties().getOrDefault(SchemaInfo.DEFAULT_LIMIT_PROPERTY, config.getDefaultLimit());
         long tableLimit = (long) tables.get(id).getProperties().getOrDefault(TableInfo.DEFAULT_LIMIT_PROPERTY, schemaLimit);
         tableLimit = (tableLimit + config.getMinSplits() - 1) / config.getMinSplits();
-        return new FakerTableHandle(id, schemaTableName, TupleDomain.all(), tableLimit);
+        return new FakerTableHandle(id, tableName, TupleDomain.all(), tableLimit);
     }
 
     @Override
