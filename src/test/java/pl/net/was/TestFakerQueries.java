@@ -547,7 +547,7 @@ public class TestFakerQueries
                 // TODO it actually returns -5877641-06-23 - there's definitely some overflow happening in the engine
                 "AND rnd_date <= DATE '-5877641-06-23' " +
                 "AND rnd_decimal1 <= DECIMAL '-99999999999999999999999999999999999999' " +
-                "AND rnd_decimal2 <= DECIMAL '-99999999999999999.99999' " +
+                "AND rnd_decimal2 <= DECIMAL '-9999999999999.99999' " +
                 "AND rnd_decimal3 <= DECIMAL '-99999999999999999999999999999999999999' " +
                 "AND rnd_decimal4 <= DECIMAL '-0.99999999999999999999999999999999999999' " +
                 // TODO it actually returns '-999.98'
