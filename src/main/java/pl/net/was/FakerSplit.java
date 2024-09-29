@@ -49,12 +49,6 @@ public class FakerSplit
         return addresses;
     }
 
-    @Override
-    public Object getInfo()
-    {
-        return "Faker split";
-    }
-
     @JsonProperty("tableHandle")
     public FakerTableHandle getTableHandle()
     {
