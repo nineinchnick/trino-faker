@@ -21,7 +21,7 @@ jobs:
           echo "::add-matcher::.github/problem-matcher.json"
           echo "::remove-matcher owner=java::"
       - name: Build with Maven
-        run: mvn -B package
+        run: ./mvnw -B package
       - name: Annotate run
         uses: trinodb/github-actions/action-surefire-report@b63800bedfbc7ab1ff2e5fe7eaecf5ab82ce6a70
         if: always()
