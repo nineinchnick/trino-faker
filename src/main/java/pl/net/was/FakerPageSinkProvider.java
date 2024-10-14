@@ -24,7 +24,6 @@ import io.trino.spi.connector.ConnectorPageSinkId;
 import io.trino.spi.connector.ConnectorPageSinkProvider;
 import io.trino.spi.connector.ConnectorSession;
 import io.trino.spi.connector.ConnectorTransactionHandle;
-import jakarta.inject.Inject;
 
 import java.util.Collection;
 import java.util.concurrent.CompletableFuture;
@@ -34,11 +33,6 @@ import static java.util.concurrent.CompletableFuture.completedFuture;
 public class FakerPageSinkProvider
         implements ConnectorPageSinkProvider
 {
-    @Inject
-    public FakerPageSinkProvider()
-    {
-    }
-
     @Override
     public ConnectorPageSink createPageSink(ConnectorTransactionHandle transactionHandle, ConnectorSession session, ConnectorOutputTableHandle outputTableHandle, ConnectorPageSinkId pageSinkId)
     {

@@ -22,12 +22,11 @@ import io.trino.spi.connector.SchemaTableName;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
+import static com.google.common.collect.ImmutableList.toImmutableList;
 import static java.util.Objects.requireNonNull;
 
 public class TableInfo
-        implements Cloneable
 {
     private final long id;
     private final String schemaName;
@@ -75,7 +74,7 @@ public class TableInfo
                 new SchemaTableName(schemaName, tableName),
                 columns.stream()
                         .map(ColumnInfo::getMetadata)
-                        .collect(Collectors.toList()),
+                        .collect(toImmutableList()),
                 properties,
                 comment);
     }
@@ -103,35 +102,18 @@ public class TableInfo
         return comment;
     }
 
-    @Override
-    public TableInfo clone()
+    public TableInfo withColumns(List<ColumnInfo> columns)
     {
-        try {
-            return (TableInfo) super.clone();
-        }
-        catch (CloneNotSupportedException e) {
-            throw new RuntimeException(e);
-        }
+        return new TableInfo(id, schemaName, tableName, columns, properties, comment);
     }
 
-    public TableInfo cloneWithColumns(List<ColumnInfo> columns)
+    public TableInfo withProperties(Map<String, Object> properties)
     {
-        TableInfo tableInfo = this.clone();
-        tableInfo.columns = columns;
-        return tableInfo;
+        return new TableInfo(id, schemaName, tableName, columns, properties, comment);
     }
 
-    public TableInfo cloneWithProperties(Map<String, Object> properties)
+    public TableInfo withComment(Optional<String> comment)
     {
-        TableInfo tableInfo = this.clone();
-        tableInfo.properties = properties;
-        return tableInfo;
-    }
-
-    public TableInfo cloneWithComment(Optional<String> comment)
-    {
-        TableInfo tableInfo = this.clone();
-        tableInfo.comment = comment;
-        return tableInfo;
+        return new TableInfo(id, schemaName, tableName, columns, properties, comment);
     }
 }

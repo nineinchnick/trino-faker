@@ -14,99 +14,22 @@
 
 package pl.net.was;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import io.trino.spi.connector.ColumnHandle;
 import io.trino.spi.type.Type;
 
-import java.util.Objects;
-import java.util.Optional;
+import static java.util.Objects.requireNonNull;
 
-public class FakerColumnHandle
+public record FakerColumnHandle(
+        int columnIndex,
+        String name,
+        Type type,
+        double nullProbability,
+        String generator)
         implements ColumnHandle
 {
-    private final int columnIndex;
-    private final String name;
-    private final Type type;
-    private final double nullProbability;
-    private final String generator;
-    private final Long step;
-
-    @JsonCreator
-    public FakerColumnHandle(
-            @JsonProperty("columnIndex") int columnIndex,
-            @JsonProperty("name") String name,
-            @JsonProperty("type") Type type,
-            @JsonProperty("nullProbability") double nullProbability,
-            @JsonProperty("generator") String generator,
-            @JsonProperty("step") Long step)
+    public FakerColumnHandle
     {
-        this.columnIndex = columnIndex;
-        this.name = name;
-        this.type = type;
-        this.nullProbability = nullProbability;
-        this.generator = generator;
-        this.step = step;
-    }
-
-    @JsonProperty("columnIndex")
-    public int getColumnIndex()
-    {
-        return columnIndex;
-    }
-
-    @JsonProperty("name")
-    public String getName()
-    {
-        return name;
-    }
-
-    @JsonProperty("type")
-    public Type getType()
-    {
-        return type;
-    }
-
-    @JsonProperty("nullProbability")
-    public double getNullProbability()
-    {
-        return nullProbability;
-    }
-
-    @JsonProperty("generator")
-    public Optional<String> getGenerator()
-    {
-        return Optional.ofNullable(generator);
-    }
-
-    @JsonProperty("step")
-    public Optional<Long> getStep()
-    {
-        return Optional.ofNullable(step);
-    }
-
-    @Override
-    public int hashCode()
-    {
-        return Objects.hash(columnIndex);
-    }
-
-    @Override
-    public boolean equals(Object o)
-    {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        FakerColumnHandle that = (FakerColumnHandle) o;
-        return Objects.equals(columnIndex, that.columnIndex);
-    }
-
-    @Override
-    public String toString()
-    {
-        return name + ":" + type;
+        requireNonNull(name, "name is null");
+        requireNonNull(type, "type is null");
     }
 }

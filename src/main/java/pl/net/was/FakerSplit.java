@@ -11,47 +11,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package pl.net.was;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import io.trino.spi.HostAddress;
 import io.trino.spi.connector.ConnectorSplit;
 
-import java.util.List;
-
-public class FakerSplit
+public record FakerSplit()
         implements ConnectorSplit
 {
-    private final FakerTableHandle tableHandle;
-    private final List<HostAddress> addresses;
-
-    @JsonCreator
-    public FakerSplit(
-            @JsonProperty("tableHandle") FakerTableHandle tableHandle,
-            @JsonProperty("addresses") List<HostAddress> addresses)
-    {
-        this.tableHandle = tableHandle;
-        this.addresses = addresses;
-    }
-
-    @Override
-    public boolean isRemotelyAccessible()
-    {
-        return true;
-    }
-
-    @Override
-    @JsonProperty("addresses")
-    public List<HostAddress> getAddresses()
-    {
-        return addresses;
-    }
-
-    @JsonProperty("tableHandle")
-    public FakerTableHandle getTableHandle()
-    {
-        return tableHandle;
-    }
 }

@@ -23,17 +23,14 @@ import java.util.Optional;
 import static java.util.Objects.requireNonNull;
 
 public class ColumnInfo
-        implements Cloneable
 {
+    public static final String NULL_PROBABILITY_PROPERTY = "null_probability";
+    public static final String GENERATOR_PROPERTY = "generator";
+
     private final ColumnHandle handle;
     private final String name;
     private final Type type;
-    private Map<String, Object> properties;
-    private Optional<String> comment;
-    private final ColumnMetadata metadata;
-
-    public static final String NULL_PROBABILITY_PROPERTY = "null_probability";
-    public static final String GENERATOR_PROPERTY = "generator";
+    private ColumnMetadata metadata;
 
     public ColumnInfo(ColumnHandle handle, String name, Type type, Map<String, Object> properties, Optional<String> comment)
     {
@@ -51,8 +48,6 @@ public class ColumnInfo
         this.metadata = requireNonNull(metadata, "metadata is null");
         this.name = metadata.getName();
         this.type = metadata.getType();
-        this.properties = metadata.getProperties();
-        this.comment = Optional.ofNullable(metadata.getComment());
     }
 
     public ColumnHandle getHandle()
@@ -76,28 +71,10 @@ public class ColumnInfo
         return name + "::" + type;
     }
 
-    @Override
-    public ColumnInfo clone()
+    public ColumnInfo withComment(Optional<String> comment)
     {
-        try {
-            return (ColumnInfo) super.clone();
-        }
-        catch (CloneNotSupportedException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public ColumnInfo cloneWithProperties(Map<String, Object> properties)
-    {
-        ColumnInfo tableInfo = this.clone();
-        tableInfo.properties = properties;
-        return tableInfo;
-    }
-
-    public ColumnInfo cloneWithComment(Optional<String> comment)
-    {
-        ColumnInfo tableInfo = this.clone();
-        tableInfo.comment = comment;
-        return tableInfo;
+        return new ColumnInfo(handle, ColumnMetadata.builderFrom(metadata)
+                .setComment(comment)
+                .build());
     }
 }

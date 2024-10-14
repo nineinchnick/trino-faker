@@ -11,7 +11,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package pl.net.was;
 
 import io.trino.spi.NodeManager;
@@ -28,19 +27,20 @@ import jakarta.inject.Inject;
 import java.util.List;
 import java.util.stream.Stream;
 
-import static java.util.stream.Collectors.toList;
+import static com.google.common.collect.ImmutableList.toImmutableList;
+import static java.util.Objects.requireNonNull;
 
 public class FakerSplitManager
         implements ConnectorSplitManager
 {
-    private final FakerConfig config;
+    private final int minSplits;
     private final NodeManager nodeManager;
 
     @Inject
     public FakerSplitManager(FakerConfig config, NodeManager nodeManager)
     {
-        this.config = config;
-        this.nodeManager = nodeManager;
+        this.minSplits = requireNonNull(config, "config is null").getMinSplits();
+        this.nodeManager = requireNonNull(nodeManager, "nodeManager is null");
     }
 
     @Override
@@ -51,12 +51,10 @@ public class FakerSplitManager
             DynamicFilter dynamicFilter,
             Constraint constraint)
     {
-        FakerTableHandle fakerTable = (FakerTableHandle) table;
         List<FakerSplit> splits = nodeManager.getRequiredWorkerNodes().stream()
-                .flatMap(node -> Stream.generate(
-                                () -> new FakerSplit(fakerTable, List.of(node.getHostAndPort())))
-                        .limit(fakerTable.getId().isPresent() ? config.getMinSplits() : 1))
-                .collect(toList());
+                .flatMap(_ -> Stream.generate(FakerSplit::new)
+                        .limit(minSplits))
+                .collect(toImmutableList());
 
         return new FixedSplitSource(splits);
     }

@@ -14,110 +14,30 @@
 
 package pl.net.was;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import io.trino.spi.connector.ColumnHandle;
 import io.trino.spi.connector.ConnectorTableHandle;
 import io.trino.spi.connector.SchemaTableName;
 import io.trino.spi.predicate.TupleDomain;
 
-import java.util.Objects;
-import java.util.Optional;
+import static java.util.Objects.requireNonNull;
 
-public class FakerTableHandle
-        implements ConnectorTableHandle, Cloneable
+public record FakerTableHandle(Long id, SchemaTableName schemaTableName, TupleDomain<ColumnHandle> constraint, long limit)
+        implements ConnectorTableHandle
 {
-    private final Long id;
-    private final SchemaTableName schemaTableName;
-    private TupleDomain<ColumnHandle> constraint;
-    private long limit;
-
-    @JsonCreator
-    public FakerTableHandle(
-            @JsonProperty("id") Long id,
-            @JsonProperty("schemaTableName") SchemaTableName schemaTableName,
-            @JsonProperty("constraint") TupleDomain<ColumnHandle> constraint,
-            @JsonProperty("limit") long limit)
+    public FakerTableHandle
     {
-        this.id = id;
-        this.schemaTableName = schemaTableName;
-        this.constraint = constraint;
-        this.limit = limit;
+        requireNonNull(id, "id is null");
+        requireNonNull(schemaTableName, "schemaTableName is null");
+        requireNonNull(constraint, "constraint is null");
     }
 
-    @JsonProperty
-    public Optional<Long> getId()
+    public FakerTableHandle withConstraint(TupleDomain<ColumnHandle> constraint)
     {
-        return Optional.ofNullable(id);
+        return new FakerTableHandle(id, schemaTableName, constraint, limit);
     }
 
-    @JsonProperty("schemaTableName")
-    public SchemaTableName getSchemaTableName()
+    public FakerTableHandle withLimit(long limit)
     {
-        return schemaTableName;
-    }
-
-    @JsonProperty("constraint")
-    public TupleDomain<ColumnHandle> getConstraint()
-    {
-        return constraint;
-    }
-
-    @JsonProperty("limit")
-    public long getLimit()
-    {
-        return limit;
-    }
-
-    @Override
-    public boolean equals(Object o)
-    {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        FakerTableHandle that = (FakerTableHandle) o;
-        return id == that.id &&
-                schemaTableName.equals(that.schemaTableName) &&
-                constraint.equals(that.constraint) &&
-                limit == that.limit;
-    }
-
-    @Override
-    public int hashCode()
-    {
-        return Objects.hash(id, schemaTableName, constraint, limit);
-    }
-
-    public String toString()
-    {
-        return schemaTableName.getTableName();
-    }
-
-    @Override
-    public FakerTableHandle clone()
-    {
-        try {
-            return (FakerTableHandle) super.clone();
-        }
-        catch (CloneNotSupportedException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public FakerTableHandle cloneWithConstraint(TupleDomain<ColumnHandle> constraint)
-    {
-        FakerTableHandle tableHandle = this.clone();
-        tableHandle.constraint = constraint;
-        return tableHandle;
-    }
-
-    public FakerTableHandle cloneWithLimit(long limit)
-    {
-        FakerTableHandle tableHandle = this.clone();
-        tableHandle.limit = limit;
-        return tableHandle;
+        return new FakerTableHandle(id, schemaTableName, constraint, limit);
     }
 }

@@ -18,7 +18,6 @@ import io.airlift.configuration.Config;
 import io.airlift.configuration.ConfigDescription;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotNull;
 
 public class FakerConfig
 {
@@ -26,7 +25,6 @@ public class FakerConfig
     private long defaultLimit = 1000L;
     private int minSplits = 1;
 
-    @NotNull
     @Max(1)
     @Min(0)
     public double getNullProbability()
@@ -42,7 +40,6 @@ public class FakerConfig
         return this;
     }
 
-    @NotNull
     @Min(1)
     public long getDefaultLimit()
     {
@@ -50,14 +47,13 @@ public class FakerConfig
     }
 
     @Config("default_limit")
-    @ConfigDescription("Default limit of number of rows for each table, when the LIMIT clause is not specified in the query")
+    @ConfigDescription("Default number of rows for each table, when the LIMIT clause is not specified in the query")
     public FakerConfig setDefaultLimit(long value)
     {
         this.defaultLimit = value;
         return this;
     }
 
-    @NotNull
     @Min(1)
     @Max(1_000)
     public int getMinSplits()

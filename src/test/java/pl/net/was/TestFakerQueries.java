@@ -26,7 +26,7 @@ public class TestFakerQueries
     protected QueryRunner createQueryRunner()
             throws Exception
     {
-        return FakerQueryRunner.createQueryRunner();
+        return FakerQueryRunner.builder().build();
     }
 
     @Test
@@ -145,7 +145,7 @@ public class TestFakerQueries
                         -- real, double
                         1000,
                         1000,
-                        -- intervals 
+                        -- intervals
                         1000,
                         1000,
                         -- timestamps

@@ -14,25 +14,15 @@
 
 package pl.net.was;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import io.trino.spi.connector.ConnectorInsertTableHandle;
 
-public class FakerInsertTableHandle
+import static java.util.Objects.requireNonNull;
+
+public record FakerInsertTableHandle(FakerTableHandle tableHandle)
         implements ConnectorInsertTableHandle
 {
-    private final FakerTableHandle tableHandle;
-
-    @JsonCreator
-    public FakerInsertTableHandle(
-            @JsonProperty("tableHandle") FakerTableHandle tableHandle)
+    public FakerInsertTableHandle
     {
-        this.tableHandle = tableHandle;
-    }
-
-    @JsonProperty("tableHandle")
-    public FakerTableHandle getTableHandle()
-    {
-        return tableHandle;
+        requireNonNull(tableHandle, "tableHandle is null");
     }
 }

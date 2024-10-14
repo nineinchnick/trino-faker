@@ -30,12 +30,12 @@ import jakarta.inject.Inject;
 import java.util.List;
 import java.util.Set;
 
+import static com.google.common.base.Preconditions.checkState;
 import static io.trino.spi.connector.ConnectorCapabilities.NOT_NULL_COLUMN_CONSTRAINT;
 import static io.trino.spi.session.PropertyMetadata.doubleProperty;
 import static io.trino.spi.session.PropertyMetadata.longProperty;
 import static io.trino.spi.session.PropertyMetadata.stringProperty;
 import static java.util.Objects.requireNonNull;
-import static pl.net.was.FakerTransactionHandle.INSTANCE;
 
 public class FakerConnector
         implements Connector
@@ -44,9 +44,6 @@ public class FakerConnector
     private final FakerSplitManager splitManager;
     private final FakerPageSourceProvider pageSourceProvider;
     private final FakerPageSinkProvider pageSinkProvider;
-
-    public static final String NULL_PROBABILITY_PROPERTY = "null_probability";
-    public static final String DEFAULT_LIMIT_PROPERTY = "default_limit";
 
     @Inject
     public FakerConnector(
@@ -64,7 +61,7 @@ public class FakerConnector
     @Override
     public ConnectorTransactionHandle beginTransaction(IsolationLevel isolationLevel, boolean readOnly, boolean autoCommit)
     {
-        return INSTANCE;
+        return FakerTransactionHandle.INSTANCE;
     }
 
     @Override
@@ -105,11 +102,13 @@ public class FakerConnector
                         SchemaInfo.NULL_PROBABILITY_PROPERTY,
                         "Default probability of null values in any column that allows them, in any table of this schema",
                         null,
+                        nullProbability -> checkState(0 <= nullProbability && nullProbability <= 1, "null_probability value must be between 0 and 1, inclusive"),
                         false),
                 longProperty(
                         SchemaInfo.DEFAULT_LIMIT_PROPERTY,
                         "Default limit of rows returned from any table in this schema, if not specified in the query",
                         null,
+                        defaultLimit -> checkState(1 <= defaultLimit, "default_limit value must be equal or greater than 1"),
                         false));
     }
 
@@ -121,11 +120,13 @@ public class FakerConnector
                         TableInfo.NULL_PROBABILITY_PROPERTY,
                         "Default probability of null values in any column in this table that allows them",
                         null,
+                        nullProbability -> checkState(0 <= nullProbability && nullProbability <= 1, "null_probability value must be between 0 and 1, inclusive"),
                         false),
                 longProperty(
                         TableInfo.DEFAULT_LIMIT_PROPERTY,
                         "Default limit of rows returned from this table if not specified in the query",
                         null,
+                        defaultLimit -> checkState(1 <= defaultLimit, "default_limit value must be equal or greater than 1"),
                         false));
     }
 
@@ -137,6 +138,7 @@ public class FakerConnector
                         ColumnInfo.NULL_PROBABILITY_PROPERTY,
                         "Default probability of null values in this column, if it allows them",
                         null,
+                        nullProbability -> checkState(0 <= nullProbability && nullProbability <= 1, "null_probability value must be between 0 and 1, inclusive"),
                         false),
                 stringProperty(
                         ColumnInfo.GENERATOR_PROPERTY,
